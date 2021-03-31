@@ -1,8 +1,14 @@
-const express = require("express");
+/**
+ * Routes Index
+ * @author Binh Nguyen
+ * @since 0.0.1
+ */
+const express = require('express');
 const router = express.Router();
 
-router.get("/welcome", function (req, res, next) {
-  res.status(200).send({ welcomeMessage: "Welcome!" });
-});
+/**
+ * API routes declaration
+ */
+router.use('/api', require('./api'));
 
 module.exports = router;

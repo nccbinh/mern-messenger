@@ -3,9 +3,7 @@ const express = require("express");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-
-const indexRouter = require("./routes/index");
-const pingRouter = require("./routes/ping");
+const mongoose = require('mongoose');
 
 const { json, urlencoded } = express;
 
@@ -17,8 +15,12 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/ping", pingRouter);
+mongoose.connect('mongodb://localhost/mern-messenger');
+mongoose.set('debug', true);
+
+//Models & Routes
+require('./models/user');
+app.use(require('./routes'));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
