@@ -15,7 +15,7 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
 
-mongoose.connect('mongodb://localhost/mern-messenger');
+mongoose.connect(process.env.MONGODB_CONNECTION_STR);
 mongoose.set('debug', true);
 
 //Models & Routes

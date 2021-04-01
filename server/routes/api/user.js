@@ -8,6 +8,7 @@ const router = require('express').Router();
 const User = mongoose.model('User');
 const emailValidator = require("email-validator");
 const passwordValidator = require('password-validator');
+const Auth = require('../auth');
 
 /**
  * POST register
@@ -92,9 +93,8 @@ router.post('/register', async (req, res, next) => {
     const finalUser = new User(user);
     finalUser.setPassword(user.password);
 
-    //TODO: get secret key from configuration
     return finalUser.save()
-        .then(() => res.status(201).json({ user: finalUser.toAuthJSON('secret') })).catch((err) => {
+        .then(() => res.status(201).json({ user: finalUser.toAuthJSON(process.env.JWT_SECRET) })).catch((err) => {
             return res.status(500).json({
                 message: err
             })
@@ -110,6 +110,16 @@ router.post('/login', async (req, res, next) => {
     const { body: { user } } = req;
 
     //TODO: implement login route
+    return res.status(500).json({ message: Unimplemented });
+});
+
+/**
+ * GET login
+ * @description Login for user.
+ * @returns 201 with auth object if success, 422/500 with error if fail.
+ */
+ router.get('/logout', Auth, async (req, res, next) => {
+    //TODO: implement logout route
     return res.status(500).json({ message: Unimplemented });
 });
 

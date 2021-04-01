@@ -50,8 +50,7 @@ UserSchema.methods.generateJWT = function (secret) {
     //TODO: add token expiration
     return jwt.sign({
         username: this.username,
-        email: this.email,
-        id: this._id,
+        expiration: Date.now() + parseInt(process.env.JWT_EXPIRATION)
     }, secret);
 }
 
@@ -62,12 +61,9 @@ UserSchema.methods.generateJWT = function (secret) {
  * @returns 
  */
 UserSchema.methods.toAuthJSON = function (secret) {
-    return {
-        _id: this._id,
-        email: this.email,
-        username: this.username,
-        token: this.generateJWT(secret),
-    };
+    let json = {};
+    json[process.env.JWT_PARAM] = this.generateJWT(secret);
+    return json;
 };
 
 mongoose.model('User', UserSchema);
