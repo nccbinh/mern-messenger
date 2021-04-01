@@ -21,7 +21,7 @@ router.post('/register', async (req, res, next) => {
     // validates required fields
     if (!user.username) {
         return res.status(422).json({
-            errors: {
+            error: {
                 username: 'Username is required.',
             },
         });
@@ -29,7 +29,7 @@ router.post('/register', async (req, res, next) => {
 
     if (!user.email) {
         return res.status(422).json({
-            errors: {
+            error: {
                 email: 'Email is required.',
             },
         });
@@ -37,7 +37,7 @@ router.post('/register', async (req, res, next) => {
 
     if (!user.password) {
         return res.status(422).json({
-            errors: {
+            error: {
                 password: 'Password is required.',
             },
         });
@@ -48,7 +48,7 @@ router.post('/register', async (req, res, next) => {
     schema.is().min(6).is().max(30);
     if (!schema.validate(user.password)) {
         return res.status(422).json({
-            errors: {
+            error: {
                 password: 'Password must be 6-30 characters.',
             }
         });
@@ -57,7 +57,7 @@ router.post('/register', async (req, res, next) => {
     schema.is().min(4).is().max(30);
     if (!schema.validate(user.username)) {
         return res.status(422).json({
-            errors: {
+            error: {
                 username: 'Username must be 4-30 characters.',
             }
         });
@@ -66,7 +66,7 @@ router.post('/register', async (req, res, next) => {
     // validates email format
     if (!emailValidator.validate(user.email)) {
         return res.status(422).json({
-            errors: {
+            error: {
                 email: 'Email is invalid.',
             }
         });
@@ -75,7 +75,7 @@ router.post('/register', async (req, res, next) => {
     // checks if username/email is used
     if (await User.findOne({ 'username': user.username })) {
         return res.status(422).json({
-            errors: {
+            error: {
                 username: 'Username is already in use.',
             }
         })
@@ -83,7 +83,7 @@ router.post('/register', async (req, res, next) => {
 
     if (await User.findOne({ 'email': user.email })) {
         return res.status(422).json({
-            errors: {
+            error: {
                 email: 'Email is already in use.',
             }
         })
@@ -104,23 +104,88 @@ router.post('/register', async (req, res, next) => {
 /**
  * POST login
  * @description Login for user.
- * @returns 201 with auth object if success, 422/500 with error if fail.
+ * @returns 201 with cookie if success, 422/500 with error if fail.
  */
 router.post('/login', async (req, res, next) => {
     const { body: { user } } = req;
 
-    //TODO: implement login route
-    return res.status(500).json({ message: Unimplemented });
+    // validates required fields
+    if (!user.username) {
+        return res.status(422).json({
+            error: {
+                username: 'Username is required.',
+            },
+        });
+    }
+
+    if (!user.password) {
+        return res.status(422).json({
+            error: {
+                password: 'Password is required.',
+            },
+        });
+    }
+
+    // validates username and password length
+    let schema = new passwordValidator();
+    schema.is().min(6).is().max(30);
+    if (!schema.validate(user.password)) {
+        return res.status(422).json({
+            error: {
+                password: 'Password must be 6-30 characters.',
+            }
+        });
+    }
+
+    schema.is().min(4).is().max(30);
+    if (!schema.validate(user.username)) {
+        return res.status(422).json({
+            error: {
+                username: 'Username must be 4-30 characters.',
+            }
+        });
+    }
+
+    // looks for user
+    return User.findOne({ 'username': user.username }).then((usr) => {
+        if(usr && usr.validatePassword(user.password)) {
+            // signs in when password is correct
+            const token = usr.generateJWT(process.env.JWT_SECRET, 
+                Date.now() + parseInt(process.env.JWT_EXPIRATION));
+            res.cookie(process.env.JWT_PARAM, token, 
+                {
+                    httpOnly: true,
+                    secure: false
+                }
+                ).status(201).json({
+                    message: 'Login successfully.'
+                });
+        } else {
+            return res.status(422).json({
+                error: {
+                    username: 'Incorrect username/password.'
+                }
+            });
+        }
+    });
 });
 
 /**
- * GET login
- * @description Login for user.
- * @returns 201 with auth object if success, 422/500 with error if fail.
+ * GET logout
+ * @description Logout for user.
+ * @returns 201 if success, 422 if fail.
  */
  router.get('/logout', Auth, async (req, res, next) => {
-    //TODO: implement logout route
-    return res.status(500).json({ message: Unimplemented });
+    if (req.cookies[process.env.JWT_PARAM]) {
+        res.clearCookie(process.env.JWT_PARAM)
+        .status(201).json({
+            message: 'Logout successfully.'
+        })
+    } else {
+        res.status(422).json({
+            message: 'Invalid token.'
+        })
+    }
 });
 
 module.exports = router;

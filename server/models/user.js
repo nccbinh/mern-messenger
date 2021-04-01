@@ -46,24 +46,11 @@ UserSchema.methods.validatePassword = function (password) {
  * @param {string} secret secret key to be used.
  * @returns 
  */
-UserSchema.methods.generateJWT = function (secret) {
-    //TODO: add token expiration
+UserSchema.methods.generateJWT = function (secret, expiration) {
     return jwt.sign({
         username: this.username,
-        expiration: Date.now() + parseInt(process.env.JWT_EXPIRATION)
+        expiration: expiration
     }, secret);
 }
-
-/**
- * @name toAuthJSON
- * @description Generates an authorization JSON object.
- * @param {string} secret Secret key to generate token.
- * @returns 
- */
-UserSchema.methods.toAuthJSON = function (secret) {
-    let json = {};
-    json[process.env.JWT_PARAM] = this.generateJWT(secret);
-    return json;
-};
 
 mongoose.model('User', UserSchema);
