@@ -13,33 +13,38 @@ const Auth = require('../auth');
 /**
  * POST register
  * @description Registers a new user account.
- * @returns 201 with auth object if success, 422/500 with error if fail.
+ * @returns 201 with cookie if success, 422/500 with error if fail.
  */
 router.post('/register', async (req, res, next) => {
     const { body: { user } } = req;
+    if(!user) {
+        return res.status(422).json({
+            message: 'Invalid request.'
+        });
+    }
 
     // validates required fields
     if (!user.username) {
         return res.status(422).json({
             error: {
-                username: 'Username is required.',
-            },
+                username: 'Username is required.'
+            }
         });
     }
 
     if (!user.email) {
         return res.status(422).json({
             error: {
-                email: 'Email is required.',
-            },
+                email: 'Email is required.'
+            }
         });
     }
 
     if (!user.password) {
         return res.status(422).json({
             error: {
-                password: 'Password is required.',
-            },
+                password: 'Password is required.'
+            }
         });
     }
 
@@ -49,16 +54,7 @@ router.post('/register', async (req, res, next) => {
     if (!schema.validate(user.password)) {
         return res.status(422).json({
             error: {
-                password: 'Password must be 6-30 characters.',
-            }
-        });
-    }
-
-    schema.is().min(4).is().max(30);
-    if (!schema.validate(user.username)) {
-        return res.status(422).json({
-            error: {
-                username: 'Username must be 4-30 characters.',
+                password: 'Password must be 6-30 characters.'
             }
         });
     }
@@ -67,7 +63,7 @@ router.post('/register', async (req, res, next) => {
     if (!emailValidator.validate(user.email)) {
         return res.status(422).json({
             error: {
-                email: 'Email is invalid.',
+                email: 'Email is invalid.'
             }
         });
     }
@@ -76,7 +72,15 @@ router.post('/register', async (req, res, next) => {
     if (await User.findOne({ 'username': user.username })) {
         return res.status(422).json({
             error: {
-                username: 'Username is already in use.',
+                username: 'Username is already in use.'
+            }
+        })
+    }
+
+    if (await User.findOne({ 'username': user.username })) {
+        return res.status(422).json({
+            error: {
+                username: 'Username is already in use.'
             }
         })
     }
@@ -84,7 +88,7 @@ router.post('/register', async (req, res, next) => {
     if (await User.findOne({ 'email': user.email })) {
         return res.status(422).json({
             error: {
-                email: 'Email is already in use.',
+                email: 'Email is already in use.'
             }
         })
     }
@@ -94,10 +98,18 @@ router.post('/register', async (req, res, next) => {
     finalUser.setPassword(user.password);
 
     return finalUser.save()
-        .then(() => res.status(201).json({ user: finalUser.toAuthJSON(process.env.JWT_SECRET) })).catch((err) => {
-            return res.status(500).json({
-                message: err
-            })
+        .then(() => {
+            // signs in when register is done
+            const token = finalUser.generateJWT(process.env.JWT_SECRET,
+                Date.now() + parseInt(process.env.JWT_EXPIRATION));
+            res.cookie(process.env.JWT_PARAM, token,
+                {
+                    httpOnly: true,
+                    secure: false
+                }
+            ).status(201).json({
+                message: 'Register successfully.'
+            });
         });
 });
 
@@ -113,7 +125,7 @@ router.post('/login', async (req, res, next) => {
     if (!user.username) {
         return res.status(422).json({
             error: {
-                username: 'Username is required.',
+                username: 'Username is required.'
             },
         });
     }
@@ -121,7 +133,7 @@ router.post('/login', async (req, res, next) => {
     if (!user.password) {
         return res.status(422).json({
             error: {
-                password: 'Password is required.',
+                password: 'Password is required.'
             },
         });
     }
@@ -132,16 +144,7 @@ router.post('/login', async (req, res, next) => {
     if (!schema.validate(user.password)) {
         return res.status(422).json({
             error: {
-                password: 'Password must be 6-30 characters.',
-            }
-        });
-    }
-
-    schema.is().min(4).is().max(30);
-    if (!schema.validate(user.username)) {
-        return res.status(422).json({
-            error: {
-                username: 'Username must be 4-30 characters.',
+                password: 'Password must be 6-30 characters.'
             }
         });
     }

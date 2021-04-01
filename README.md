@@ -16,3 +16,15 @@ To download and install MongoDB locally, simply visit their [download page](http
 Installing it is even more simple, just follow on-screen instructions and proceed with the default full installation (which will install MongoDB as a service).
 
 Optionally, a GUI tool to manage your MongoDB data can be downloaded [here](https://www.mongodb.com/products/compass).
+
+### .env File
+
+An .env file with these properties should be placed in the root folder of the server
+
+```
+NODE_ENV=<environment>
+JWT_SECRET=<token secret>
+JWT_PARAM=<token param name>
+JWT_EXPIRATION=<expiration in milliseconds>
+MONGODB_CONNECTION_STR=<mongodb connection string>
+```
