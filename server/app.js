@@ -3,9 +3,8 @@ const express = require("express");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const mongoose = require('mongoose');
-
 const { json, urlencoded } = express;
+const db = require("./utils/db");
 
 const app = express();
 
@@ -15,11 +14,10 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
 
-mongoose.connect(process.env.MONGODB_CONNECTION_STR);
-mongoose.set('debug', true);
+// inits database connection
+db.connectDB(process.env.MONGODB_CONNECTION_STR);
 
-//Models & Routes
-require('./models/user');
+// Routes
 app.use(require('./routes'));
 
 // catch 404 and forward to error handler

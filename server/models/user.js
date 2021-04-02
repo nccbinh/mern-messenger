@@ -13,7 +13,7 @@ const { Schema } = mongoose;
  * User Schema
  */
 const UserSchema = new Schema({
-    username: String,
+    username: { type: String, index: { unique: true } },
     email: String,
     hash: String,
     salt: String,

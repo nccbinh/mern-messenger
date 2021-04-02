@@ -6,80 +6,21 @@
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const User = mongoose.model('User');
-const emailValidator = require("email-validator");
-const passwordValidator = require('password-validator');
-const Auth = require('../auth');
+const Auth = require('../../middlewares/auth');
+const Validator = require('../../middlewares/validator');
 
 /**
  * POST register
  * @description Registers a new user account.
  * @returns 201 with cookie if success, 422/500 with error if fail.
  */
-router.post('/register', async (req, res, next) => {
+router.post('/register', Validator.register, async (req, res, next) => {
     const { body: { user } } = req;
-    if(!user) {
-        return res.status(422).json({
-            message: 'Invalid request.'
-        });
-    }
-
-    // validates required fields
-    if (!user.username) {
-        return res.status(422).json({
-            error: {
-                username: 'Username is required.'
-            }
-        });
-    }
-
-    if (!user.email) {
-        return res.status(422).json({
-            error: {
-                email: 'Email is required.'
-            }
-        });
-    }
-
-    if (!user.password) {
-        return res.status(422).json({
-            error: {
-                password: 'Password is required.'
-            }
-        });
-    }
-
-    // validates username and password length
-    let schema = new passwordValidator();
-    schema.is().min(6).is().max(30);
-    if (!schema.validate(user.password)) {
-        return res.status(422).json({
-            error: {
-                password: 'Password must be 6-30 characters.'
-            }
-        });
-    }
-
-    // validates email format
-    if (!emailValidator.validate(user.email)) {
-        return res.status(422).json({
-            error: {
-                email: 'Email is invalid.'
-            }
-        });
-    }
 
     // checks if username/email is used
     if (await User.findOne({ 'username': user.username })) {
         return res.status(422).json({
-            error: {
-                username: 'Username is already in use.'
-            }
-        })
-    }
-
-    if (await User.findOne({ 'username': user.username })) {
-        return res.status(422).json({
-            error: {
+            errors: {
                 username: 'Username is already in use.'
             }
         })
@@ -87,7 +28,7 @@ router.post('/register', async (req, res, next) => {
 
     if (await User.findOne({ 'email': user.email })) {
         return res.status(422).json({
-            error: {
+            errors: {
                 email: 'Email is already in use.'
             }
         })
@@ -118,36 +59,8 @@ router.post('/register', async (req, res, next) => {
  * @description Login for user.
  * @returns 201 with cookie if success, 422/500 with error if fail.
  */
-router.post('/login', async (req, res, next) => {
+router.post('/login', Validator.login, async (req, res, next) => {
     const { body: { user } } = req;
-
-    // validates required fields
-    if (!user.username) {
-        return res.status(422).json({
-            error: {
-                username: 'Username is required.'
-            },
-        });
-    }
-
-    if (!user.password) {
-        return res.status(422).json({
-            error: {
-                password: 'Password is required.'
-            },
-        });
-    }
-
-    // validates username and password length
-    let schema = new passwordValidator();
-    schema.is().min(6).is().max(30);
-    if (!schema.validate(user.password)) {
-        return res.status(422).json({
-            error: {
-                password: 'Password must be 6-30 characters.'
-            }
-        });
-    }
 
     // looks for user
     return User.findOne({ 'username': user.username }).then((usr) => {
@@ -160,12 +73,12 @@ router.post('/login', async (req, res, next) => {
                     httpOnly: true,
                     secure: false
                 }
-                ).status(201).json({
+                ).status(200).json({
                     message: 'Login successfully.'
                 });
         } else {
-            return res.status(422).json({
-                error: {
+            return res.status(401).json({
+                errors: {
                     username: 'Incorrect username/password.'
                 }
             });

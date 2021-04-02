@@ -1,5 +1,5 @@
 /**
- * Authentication Route
+ * Authentication Middleware
  * @author Binh Nguyen
  * @since 0.0.1
  */
