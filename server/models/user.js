@@ -14,9 +14,9 @@ const { Schema } = mongoose;
  */
 const UserSchema = new Schema({
     username: { type: String, index: { unique: true } },
-    email: String,
+    email: { type: String, index: { unique: true } },
     hash: String,
-    salt: String,
+    salt: String
 });
 
 /**
