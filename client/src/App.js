@@ -1,3 +1,8 @@
+/**
+ * App
+ * @author Hatchways
+ * @since 0.1.0
+ */
 import React from "react";
 import { MuiThemeProvider } from "@material-ui/core";
 import { theme } from "./themes/theme.js";
@@ -7,17 +12,28 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 
-import "./App.css";
+import "./styles/App.css";
 
 function App() {
   const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem("user"));
+  const PrivateRoute  = ({ children, ...rest }) => {
+    return (
+      <Route {...rest} render={() => {
+        return loggedIn
+          ? children
+          : <Redirect to='/login' />
+      }} />
+    )
+  };
 
   return (
     <MuiThemeProvider theme={theme}>
       <BrowserRouter>
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Signup} />
-        <Route path="/dashboard" component={Dashboard} />
+        <PrivateRoute path='/dashboard'>
+          <Dashboard/>
+        </PrivateRoute>
         <Route exact path="/">
           <Redirect to="/signup" />
         </Route>
