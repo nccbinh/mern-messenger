@@ -75,7 +75,7 @@ export default function Register() {
           </Box>
         </Grid>
       </Hidden>
-      <Grid item xs={12} sm={8} md={7} elevation={6} component={Paper} square>
+      <Grid item xs={12} sm={12} md={7} elevation={6} component={Paper} square>
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
             <Link to="/login" className={classes.link}>
