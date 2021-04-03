@@ -8,18 +8,16 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
     root: {
-        fontFamily: "'Open Sans' !important",
-        fontWeight: 600,
         minHeight: "100vh",
         "& .MuiInput-underline:before": {
             borderBottom: "1.2px solid rgba(0, 0, 0, 0.2)"
         }
     },
     welcome: {
+        fontWeight: 600,
         fontSize: 26,
         paddingBottom: 20,
-        color: "#000000",
-        fontWeight: 500
+        color: "#000000"
     },
     heroText: {
         fontSize: 26,
@@ -50,6 +48,7 @@ const useStyles = makeStyles(theme => ({
         paddingTop: 23
     },
     accBtn: {
+        fontSize: 14,
         width: 170,
         height: 54,
         borderRadius: 5,

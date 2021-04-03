@@ -20,6 +20,11 @@ import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
 import { useStyles } from "../styles/welcome";
 
+/**
+ * @name useRegister
+ * @description calls register api for registering a new user
+ * @returns login information
+ */
 function useRegister() {
   const history = useHistory();
 
@@ -36,6 +41,9 @@ function useRegister() {
   return login;
 }
 
+/**
+ * Register page implementation
+ */
 export default function Register() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -52,7 +60,7 @@ export default function Register() {
   React.useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) history.push("/dashboard");
-  }, []);
+  }, [history]);
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -60,7 +68,7 @@ export default function Register() {
       <Hidden smDown>
         <Grid item xs={false} sm={false} md={5} className={classes.image}>
           <Box className={classes.overlay}>
-            <img width={67} src="/images/chatBubble.png" />
+            <img width={67} alt="" src="/images/chatBubble.png" />
             <Typography className={classes.heroText}>
               Converse with anyone with any language
               </Typography>
@@ -75,7 +83,7 @@ export default function Register() {
                 Already have an account?
               </Button>
               <Button
-                color="background"
+                color="default"
                 className={classes.accBtn}
                 variant="contained"
               >
@@ -98,6 +106,7 @@ export default function Register() {
             </Grid>
             <Formik
               initialValues={{
+                username: "",
                 email: "",
                 password: ""
               }}
@@ -145,7 +154,6 @@ export default function Register() {
                       </Typography>
                     }
                     fullWidth
-                    id="username"
                     margin="normal"
                     InputLabelProps={{
                       shrink: true
@@ -200,7 +208,6 @@ export default function Register() {
                     error={touched.password && Boolean(errors.password)}
                     value={values.password}
                     onChange={handleChange}
-                    type="password"
                   />
 
                   <Box textAlign="center">

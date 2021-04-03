@@ -1,3 +1,8 @@
+/**
+ * App
+ * @author Hatchways
+ * @since 0.1.0
+ */
 import React from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -5,13 +10,16 @@ import TextField from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
 import { useHistory } from "react-router-dom";
 
+/**
+ * Dashboard page implementation
+ */
 export default function Dashboard() {
   const history = useHistory();
 
   React.useEffect(() => {
     const user = localStorage.getItem("user");
     if (!user) history.push("/signup");
-  }, []);
+  }, [history]);
 
   return (
     <>

@@ -20,7 +20,11 @@ import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
 import { useStyles } from "../styles/welcome";
 
-// Login middleware placeholder
+/**
+ * @name useLogin
+ * @description calls login api for logging in
+ * @returns login information
+ */
 function useLogin() {
   const history = useHistory();
 
@@ -36,6 +40,9 @@ function useLogin() {
   return login;
 }
 
+/**
+ * Login page implementation
+ */
 export default function Login() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
@@ -45,7 +52,7 @@ export default function Login() {
   React.useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) history.push("/dashboard");
-  }, []);
+  }, [history]);
 
   const login = useLogin();
 
@@ -61,7 +68,7 @@ export default function Login() {
       <Hidden smDown>
         <Grid item xs={false} sm={false} md={5} className={classes.image}>
           <Box className={classes.overlay}>
-            <img width={67} src="/images/chatBubble.png" />
+            <img width={67} alt="" src="/images/chatBubble.png" />
             <Typography className={classes.heroText}>
               Converse with anyone with any language
               </Typography>
@@ -76,7 +83,7 @@ export default function Login() {
                 Don't have an account?
               </Button>
               <Button
-                color="background"
+                color="default"
                 className={classes.accBtn}
                 variant="contained"
               >
@@ -171,7 +178,6 @@ export default function Login() {
                     error={touched.password && Boolean(errors.password)}
                     value={values.password}
                     onChange={handleChange}
-                    type="password"
                   />
 
                   <Box textAlign="center">
