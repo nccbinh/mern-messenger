@@ -9,7 +9,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
-import Hidden from "@material-ui/core/Hidden";
 import Snackbar from "@material-ui/core/Snackbar";
 import { Link, useHistory } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
@@ -18,7 +17,8 @@ import CloseIcon from "@material-ui/icons/Close";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
-import { useStyles } from "../styles/welcome";
+import { useStyles } from "../styles/authentication";
+import AuthSidebar from "../components/AuthSidebar";
 
 /**
  * @name useLogin
@@ -65,16 +65,7 @@ export default function Login() {
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
-      <Hidden smDown>
-        <Grid item xs={false} sm={false} md={5} className={classes.image}>
-          <Box className={classes.overlay}>
-            <img width={67} alt="" src="/images/chatBubble.png" />
-            <Typography className={classes.heroText}>
-              Converse with anyone with any language
-              </Typography>
-          </Box>
-        </Grid>
-      </Hidden>
+      <AuthSidebar/>
       <Grid item xs={12} sm={12} md={7} elevation={6} component={Paper} square>
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
