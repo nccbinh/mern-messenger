@@ -28,14 +28,28 @@ import AuthSidebar from "../components/AuthSidebar";
 function useLogin() {
   const history = useHistory();
 
-  const login = async (email, password) => {
-    console.log(email, password);
+  const login = async (username, password) => {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: { username: username, password: password } })
+    };
     const res = await fetch(
-      `/auth/login?email=${email}&password=${password}`
-    ).then(res => res.json());
-    localStorage.setItem("user", res.user);
-    localStorage.setItem("token", res.token);
-    history.push("/dashboard");
+      `api/user/login`, requestOptions
+    ).then(res => res.json())
+      .then(
+        (result) => {
+          console.log(result);
+          return result;
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    // localStorage.setItem("user", res.user);
+    // localStorage.setItem("token", res.token);
+    // history.push("/dashboard");
+    return res;
   };
   return login;
 }
@@ -46,6 +60,7 @@ function useLogin() {
 export default function Login() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = React.useState('');
 
   const history = useHistory();
 
@@ -65,7 +80,7 @@ export default function Login() {
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
-      <AuthSidebar/>
+      <AuthSidebar />
       <Grid item xs={12} sm={12} md={7} elevation={6} component={Paper} square>
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
@@ -93,24 +108,28 @@ export default function Login() {
             </Grid>
             <Formik
               initialValues={{
-                email: "",
+                username: "",
                 password: ""
               }}
               validationSchema={Yup.object().shape({
-                email: Yup.string()
-                  .required("Email is required")
-                  .email("Email is not valid"),
+                username: Yup.string()
+                  .required("Username is required"),
                 password: Yup.string()
                   .required("Password is required")
                   .max(100, "Password is too long")
                   .min(6, "Password too short")
               })}
-              onSubmit={({ email, password }, { setStatus, setSubmitting }) => {
+              onSubmit={({ username, password }, { setStatus, setSubmitting, setErrors }) => {
                 setStatus();
-                login(email, password).then(
-                  () => {
+                login(username, password).then(
+                  (res) => {
                     // useHistory push to chat
-                    console.log(email, password);
+                    if(res.errors) {
+                      setErrors(res.errors);
+                    } else {
+                      setMessage(res.message);
+                      setOpen(true);
+                    }
                     return;
                   },
                   error => {
@@ -127,20 +146,24 @@ export default function Login() {
                   noValidate
                 >
                   <TextField
-                    id="email"
-                    label={<p className={classes.label}>E-mail address</p>}
+                    id="username"
+                    label={
+                      <Typography className={classes.label}>
+                        Username
+                      </Typography>
+                    }
                     fullWidth
                     margin="normal"
                     InputLabelProps={{
                       shrink: true
                     }}
                     InputProps={{ classes: { input: classes.inputs } }}
-                    name="email"
-                    autoComplete="email"
+                    name="username"
+                    autoComplete="username"
                     autoFocus
-                    helperText={touched.email ? errors.email : ""}
-                    error={touched.email && Boolean(errors.email)}
-                    value={values.email}
+                    helperText={touched.username ? errors.username : ""}
+                    error={touched.username && Boolean(errors.username)}
+                    value={values.username}
                     onChange={handleChange}
                   />
                   <TextField
@@ -155,14 +178,7 @@ export default function Login() {
                     InputLabelProps={{
                       shrink: true
                     }}
-                    InputProps={{
-                      classes: { input: classes.inputs },
-                      endAdornment: (
-                        <Typography className={classes.forgot}>
-                          Forgot?
-                        </Typography>
-                      )
-                    }}
+                    InputProps={{ classes: { input: classes.inputs }}}
                     type="password"
                     autoComplete="current-password"
                     helperText={touched.password ? errors.password : ""}
@@ -198,7 +214,7 @@ export default function Login() {
           open={open}
           autoHideDuration={6000}
           onClose={handleClose}
-          message="Login failed"
+          message={message}
           action={
             <React.Fragment>
               <IconButton
