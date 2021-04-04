@@ -29,14 +29,19 @@ function useRegister() {
   const history = useHistory();
 
   const login = async (username, email, password) => {
-    console.log(email, password);
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: { username: username, email: email, password: password } })
+    };
     const res = await fetch(
-      `/auth/signup?username=${username}&email=${email}&password=${password}`
+      `api/user/register`, requestOptions
     ).then(res => res.json());
-    console.log(res);
-    localStorage.setItem("user", res.user);
-    localStorage.setItem("token", res.token);
-    history.push("/dashboard");
+    // console.log(res);
+    // localStorage.setItem("user", res.user);
+    // localStorage.setItem("token", res.token);
+    // history.push("/dashboard");
+    return res;
   };
   return login;
 }
@@ -47,6 +52,7 @@ function useRegister() {
 export default function Register() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [message, setMessage] = React.useState('');
 
   const register = useRegister();
 
@@ -115,13 +121,18 @@ export default function Register() {
               })}
               onSubmit={(
                 { username, email, password },
-                { setStatus, setSubmitting }
+                { setStatus, setSubmitting, setErrors }
               ) => {
                 setStatus();
                 register(username, email, password).then(
-                  () => {
+                  (res) => {
                     // useHistory push to chat
-                    console.log(email, password);
+                    if(res.errors) {
+                      setErrors(res.errors);
+                    } else {
+                      setMessage(res.message);
+                      setOpen(true);
+                    }
                     return;
                   },
                   error => {
@@ -226,7 +237,7 @@ export default function Register() {
           open={open}
           autoHideDuration={6000}
           onClose={handleClose}
-          message="Email already exists"
+          message={message}
           action={
             <React.Fragment>
               <IconButton
