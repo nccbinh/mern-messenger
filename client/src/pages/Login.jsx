@@ -28,12 +28,9 @@ export default function Login() {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
 
-  const history = useHistory();
-
   const handleClose = (event, reason) => {
     if (reason === "clickaway") return;
     setOpen(false);
-    history.push("/dashboard");
   };
 
   return (
@@ -43,18 +40,20 @@ export default function Login() {
       <Grid item xs={12} sm={12} md={7} elevation={6} component={Paper} square>
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
-            <Link to="/signup" className={classes.link}>
-              <Button className={classes.noAccBtn}>
+            <span className={classes.link}>
+              <span className={classes.accText}>
                 Don't have an account?
+              </span>
+              <Link to="/signup" className={classes.link}>
+                <Button
+                  color="default"
+                  className={classes.accBtn}
+                  variant="contained"
+                >
+                  Create account
               </Button>
-              <Button
-                color="default"
-                className={classes.accBtn}
-                variant="contained"
-              >
-                Create account
-              </Button>
-            </Link>
+              </Link>
+            </span>
           </Box>
 
           <Box width="100%" maxWidth={450} p={3} alignSelf="center">
@@ -90,7 +89,7 @@ export default function Login() {
                       setOpen(true);
                       // redirects to dashboard
                       localStorage.setItem("user", username);
-                      
+                      window.location.href = "/dashboard";
                     }
                     return;
                   },

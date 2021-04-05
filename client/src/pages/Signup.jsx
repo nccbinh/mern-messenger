@@ -9,7 +9,7 @@ import TextField from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Snackbar from "@material-ui/core/Snackbar";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
@@ -32,8 +32,6 @@ export default function Register() {
     if (reason === "clickaway") return;
     setOpen(false);
   };
-
-  const history = useHistory();
   
   return (
     <Grid container component="main" className={classes.root}>
@@ -42,18 +40,20 @@ export default function Register() {
       <Grid item xs={12} sm={12} md={7} elevation={6} component={Paper} square>
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
-            <Link to="/login" className={classes.link}>
-              <Button className={classes.noAccBtn}>
+          <span className={classes.link}>
+              <span className={classes.accText}>
                 Already have an account?
+              </span>
+              <Link to="/login" className={classes.link}>
+                <Button
+                  color="default"
+                  className={classes.accBtn}
+                  variant="contained"
+                >
+                  Login
               </Button>
-              <Button
-                color="default"
-                className={classes.accBtn}
-                variant="contained"
-              >
-                Login
-              </Button>
-            </Link>
+              </Link>
+            </span>
           </Box>
 
           <Box width="100%" maxWidth={450} p={3} alignSelf="center">
@@ -101,7 +101,7 @@ export default function Register() {
                       setOpen(true);
                       // redirects to dashboard
                       localStorage.setItem("user", username);
-                      history.push("/dashboard");
+                      window.location.href = "/dashboard";
                     }
                     return;
                   },

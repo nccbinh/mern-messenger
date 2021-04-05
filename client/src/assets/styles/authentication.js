@@ -58,13 +58,14 @@ const useStyles = makeStyles(theme => ({
         boxShadow: "none",
         marginRight: 35
     },
-    noAccBtn: {
+    accText: {
         fontSize: 14,
         color: "#b0b0b0",
         fontWeight: 400,
-        textAlign: "center",
-        marginRight: 21,
-        whiteSpace: "nowrap"
+        marginRight: 29,
+        whiteSpace: "nowrap",
+        display: "inline-flex",
+        alignItems: "center"
     },
     image: {
         backgroundImage: `url(${Background})`,

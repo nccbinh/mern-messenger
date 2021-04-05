@@ -7,8 +7,7 @@ import React from 'react';
 import { Route, Redirect } from "react-router-dom";
 
 export default function PublicRoute ({ children, ...rest }) {
-    const [loggedIn, setLoggedIn] = React.useState(localStorage.getItem("user"));
-    console.log("public route: ", loggedIn);
+    const loggedIn = localStorage.getItem("user");
     return (
         <Route {...rest} render={() => {
             // redirects to dashboard if logged in
