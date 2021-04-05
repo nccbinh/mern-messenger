@@ -1,6 +1,5 @@
 /**
  * Signup Page
- * @author Hatchways
  * @since 0.1.0
  */
 import React from "react";
@@ -17,34 +16,9 @@ import CloseIcon from "@material-ui/icons/Close";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
-import { useStyles } from "../styles/authentication";
+import { useStyles } from "../assets/styles/authentication";
 import AuthSidebar from "../components/AuthSidebar";
-
-/**
- * @name useRegister
- * @description calls register api for registering a new user
- * @returns login information
- */
-function useRegister() {
-  const history = useHistory();
-
-  const login = async (username, email, password) => {
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: { username: username, email: email, password: password } })
-    };
-    const res = await fetch(
-      `api/user/register`, requestOptions
-    ).then(res => res.json());
-    // console.log(res);
-    // localStorage.setItem("user", res.user);
-    // localStorage.setItem("token", res.token);
-    // history.push("/dashboard");
-    return res;
-  };
-  return login;
-}
+const AuthService = require("../services/authService");
 
 /**
  * Register page implementation
@@ -54,20 +28,13 @@ export default function Register() {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
 
-  const register = useRegister();
-
   const handleClose = (event, reason) => {
     if (reason === "clickaway") return;
     setOpen(false);
   };
 
   const history = useHistory();
-
-  React.useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) history.push("/dashboard");
-  }, [history]);
-
+  
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -124,7 +91,7 @@ export default function Register() {
                 { setStatus, setSubmitting, setErrors }
               ) => {
                 setStatus();
-                register(username, email, password).then(
+                AuthService.register(username, email, password).then(
                   (res) => {
                     // useHistory push to chat
                     if(res.errors) {
@@ -132,6 +99,9 @@ export default function Register() {
                     } else {
                       setMessage(res.message);
                       setOpen(true);
+                      // redirects to dashboard
+                      localStorage.setItem("user", username);
+                      history.push("/dashboard");
                     }
                     return;
                   },

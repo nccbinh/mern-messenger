@@ -1,6 +1,5 @@
 /**
  * Login Page
- * @author Hatchways
  * @since 0.1.0
  */
 import React from "react";
@@ -17,42 +16,9 @@ import CloseIcon from "@material-ui/icons/Close";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
-import { useStyles } from "../styles/authentication";
+import { useStyles } from "../assets/styles/authentication";
 import AuthSidebar from "../components/AuthSidebar";
-
-/**
- * @name useLogin
- * @description calls login api for logging in
- * @returns login information
- */
-function useLogin() {
-  const history = useHistory();
-
-  const login = async (username, password) => {
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: { username: username, password: password } })
-    };
-    const res = await fetch(
-      `api/user/login`, requestOptions
-    ).then(res => res.json())
-      .then(
-        (result) => {
-          console.log(result);
-          return result;
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-    // localStorage.setItem("user", res.user);
-    // localStorage.setItem("token", res.token);
-    // history.push("/dashboard");
-    return res;
-  };
-  return login;
-}
+const AuthService = require("../services/authService");
 
 /**
  * Login page implementation
@@ -64,17 +30,10 @@ export default function Login() {
 
   const history = useHistory();
 
-  React.useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) history.push("/dashboard");
-  }, [history]);
-
-  const login = useLogin();
-
   const handleClose = (event, reason) => {
-    console.log(reason);
     if (reason === "clickaway") return;
     setOpen(false);
+    history.push("/dashboard");
   };
 
   return (
@@ -121,7 +80,7 @@ export default function Login() {
               })}
               onSubmit={({ username, password }, { setStatus, setSubmitting, setErrors }) => {
                 setStatus();
-                login(username, password).then(
+                AuthService.login(username, password).then(
                   (res) => {
                     // useHistory push to chat
                     if(res.errors) {
@@ -129,6 +88,9 @@ export default function Login() {
                     } else {
                       setMessage(res.message);
                       setOpen(true);
+                      // redirects to dashboard
+                      localStorage.setItem("user", username);
+                      
                     }
                     return;
                   },

@@ -1,6 +1,5 @@
 /**
  * App
- * @author Hatchways
  * @since 0.1.0
  */
 import React from "react";
@@ -15,11 +14,6 @@ import { useHistory } from "react-router-dom";
  */
 export default function Dashboard() {
   const history = useHistory();
-
-  React.useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) history.push("/signup");
-  }, [history]);
 
   return (
     <>

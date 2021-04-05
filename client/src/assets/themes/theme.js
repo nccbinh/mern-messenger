@@ -1,7 +1,6 @@
 /**
  * Main Theme
  * Theme definition
- * @author Hatchways
  * @since 0.1.0
  */
 import { createMuiTheme } from "@material-ui/core";

@@ -1,10 +1,10 @@
 /**
- * Welcome Styles
+ * Authentication Styles
  * Styling for Signup/Login
- * @author Hatchways
  * @since 0.1.0
  */
 import { makeStyles } from "@material-ui/core/styles";
+import Background from "../images/bg-img.png";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
         whiteSpace: "nowrap"
     },
     image: {
-        backgroundImage: "url(./images/bg-img.png)",
+        backgroundImage: `url(${Background})`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         backgroundPosition: "center"
