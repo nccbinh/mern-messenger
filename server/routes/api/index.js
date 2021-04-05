@@ -11,5 +11,6 @@ const router = express.Router();
  */
 router.use('/ping', require('./ping'));
 router.use('/user', require('./user'));
+router.use('/conversation', require('./conversation'));
 
 module.exports = router;

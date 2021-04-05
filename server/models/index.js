@@ -5,4 +5,5 @@
  */
 
 // declares models in folder
- require('./user');
+require('./user');
+require('./conversation');

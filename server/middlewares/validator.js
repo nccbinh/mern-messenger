@@ -84,3 +84,82 @@ exports.register = (req, res, next) => {
         next();
     }
 };
+
+/**
+ * Search Validator
+ */
+exports.searchUser = (req, res, next) => {
+    const term = req.query.term;
+    // validates search term
+    if (!term || term.length < 3) {
+        return res.status(422).json({
+            message: 'Please enter at least 3 characters to start searching.'
+        });
+    }
+
+    next();
+};
+
+/**
+ * Conversation Search Validator
+ */
+exports.searchConversation = (req, res, next) => {
+    const username = req.query.username;
+    // validates search term
+    if (!username) {
+        return res.status(422).json({
+            message: 'Username is required.'
+        });
+    }
+
+    next();
+};
+
+/**
+ * Conversation Search Validator
+ */
+exports.getConversation = (req, res, next) => {
+    const id = req.query.id;
+    // validates search term
+    if (!id) {
+        return res.status(422).json({
+            message: 'ID is required.'
+        });
+    }
+    next();
+};
+
+/**
+ * Start Conversation Validator
+ */
+exports.newConversation = (req, res, next) => {
+    const { body: { conversation } } = req;
+    let errors = {};
+
+    // validates required fields
+    if (!conversation.from) {
+        errors.from = 'Invalid request.';
+    }
+
+    if (!conversation.to) {
+        errors.to = 'Please choose a recipient.';
+    }
+
+    if (!conversation.message) {
+        errors.message = 'Please enter a message.';
+    }
+
+    // validates from and to not the same
+    if (conversation.from && conversation.to
+        && conversation.from === conversation.to) {
+        errors.from = 'Cannot start a conversation with yourself.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+        return res.status(422).json({
+            errors: errors
+        });
+    } else {
+        next();
+    }
+};
