@@ -9,7 +9,7 @@ import Hidden from "@material-ui/core/Hidden";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import { useStyles } from "../assets/styles/authentication";
-import { ReactComponent as Chat } from "../assets/images/bubble.svg";
+import ChatBubble from "../assets/images/bubble.svg";
 
 export default function AuthSidebar() {
     const classes = useStyles();
@@ -17,7 +17,7 @@ export default function AuthSidebar() {
         <Hidden smDown>
             <Grid item xs={false} sm={false} md={5} className={classes.image}>
                 <Box className={classes.overlay}>
-                    <Chat width={67}/>
+                    <img src={ChatBubble} alt="" width={67}/>
                     <Typography className={classes.heroText}>
                         Converse with anyone with any language
                     </Typography>

@@ -9,7 +9,7 @@
  * @description calls login api for logging in
  * @returns login information
  */
-exports.login = async function (username, password) {
+export async function login (username, password) {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -26,7 +26,7 @@ exports.login = async function (username, password) {
  * @description calls register api for registering a new user
  * @returns register information
  */
-exports.register = async function (username, email, password) {
+export async function register (username, email, password) {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
