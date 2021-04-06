@@ -1,30 +1,25 @@
 /**
- * App
+ * Dashboard Page
  * @since 0.1.0
  */
 import React from "react";
-import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
+import { useStyles } from "../assets/styles/authentication";
+import ChatPane from "../components/chat/ChatPane";
+import ChatSidebar from "../components/chat/ChatSidebar";
 
 /**
  * Dashboard page implementation
  */
 export default function Dashboard() {
+  const classes = useStyles();
+
   return (
-    <>
-      {/* For testing purposes right now, ignore styling */}
-      <p>Dashboard</p>
-      <p>User: {JSON.stringify(localStorage.getItem("user"))}</p>
-      <button
-        onClick={() => {
-          localStorage.removeItem("user");
-          window.location.href = "/login";
-        }}
-      >
-        Logout
-      </button>
-    </>
+    <Grid container component="main" className={classes.root}>
+      <CssBaseline />
+      <ChatSidebar />
+      <ChatPane />
+    </Grid>
   );
 }

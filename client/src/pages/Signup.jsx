@@ -17,7 +17,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
 import { useStyles } from "../assets/styles/authentication";
-import AuthSidebar from "../components/AuthSidebar";
+import AuthSidebar from "../components/auth/AuthSidebar";
 const AuthService = require("../services/authService");
 
 /**
