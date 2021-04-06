@@ -9,18 +9,14 @@
  
  const MessageSchema = new Schema({
     author: { type: String, index: true },
-    created: Date,
     content: String
- });
+ }, { timestamps: { createdAt: 'created' } });
 
  const ConversationSchema = new Schema({
      // for future use if group chat is implemented
     startedBy: { type: String, index: true },
-    // references to participated users can be made here, but that would make no-sql pointless
-    // conversation starter is included
     participants: [String],
-    lastUpdated: Date,
     messages: [MessageSchema]
- });
+ }, { timestamps: { updatedAt: 'lastUpdated' } });
  
  mongoose.model('Conversation', ConversationSchema);

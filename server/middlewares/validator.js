@@ -104,28 +104,14 @@ exports.searchUser = (req, res, next) => {
  * Conversation Search Validator
  */
 exports.searchConversation = (req, res, next) => {
-    const username = req.query.username;
+    const username = req.user.username;
     // validates search term
     if (!username) {
         return res.status(422).json({
-            message: 'Username is required.'
+            message: 'Invalid request.'
         });
     }
 
-    next();
-};
-
-/**
- * Conversation Search Validator
- */
-exports.getConversation = (req, res, next) => {
-    const id = req.query.id;
-    // validates search term
-    if (!id) {
-        return res.status(422).json({
-            message: 'ID is required.'
-        });
-    }
     next();
 };
 
@@ -133,11 +119,12 @@ exports.getConversation = (req, res, next) => {
  * Start Conversation Validator
  */
 exports.newConversation = (req, res, next) => {
+    const username = req.user.username;
     const { body: { conversation } } = req;
     let errors = {};
 
     // validates required fields
-    if (!conversation.from) {
+    if (!username || !conversation) {
         errors.from = 'Invalid request.';
     }
 

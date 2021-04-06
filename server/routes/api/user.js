@@ -94,7 +94,7 @@ router.post('/login', Validator.login, async (req, res, next) => {
 router.get('/logout', Auth, async (req, res, next) => {
     if (req.cookies[process.env.JWT_PARAM]) {
         res.clearCookie(process.env.JWT_PARAM)
-            .status(201).json({
+            .status(200).json({
                 message: 'Logout successfully.'
             })
     } else {
@@ -111,11 +111,11 @@ router.get('/logout', Auth, async (req, res, next) => {
  */
 router.get('/search', Auth, Validator.searchUser, async (req, res, next) => {
     const searchTerm = req.query.term;
-    User.find({ username: { $regex: searchTerm, $options: "i" } }).then(
+    User.find({ username: { $regex: searchTerm, $options: "i" } }, 'username').then(
         (users) => {
             // returns only usernames
             return res.status(200)
-                .json(users.map(u => { return { username: u.username } }));
+                .json({ users: users });
         },
         (err) => {
             console.log(err);
