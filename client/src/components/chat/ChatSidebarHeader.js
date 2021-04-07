@@ -4,7 +4,8 @@
  * @since 0.1.0
  */
 import React from 'react';
-import { Avatar, Typography, Box, makeStyles } from '@material-ui/core';
+import { Avatar, Typography, Box, IconButton, makeStyles, Tooltip } from '@material-ui/core';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import OnlineBadge from "./OnlineBadge";
 
 const useStyles = makeStyles(theme => ({
@@ -29,10 +30,17 @@ const useStyles = makeStyles(theme => ({
     avatarBadge: {
         marginTop: "auto",
         marginBottom: "auto",
+    },
+    menuButton: {
+        marginTop: "auto",
+        marginBottom: "auto",
+        marginLeft: "auto",
+        marginRight: "0",
+        color: "gray"
     }
 }));
 
-export default function ChatSidebarHeader({ name, avatar }) {
+export default function ChatSidebarHeader({ name, avatar, logoutHandler }) {
     const classes = useStyles();
     return (
         <Box className={classes.chatSidebarHeader}>
@@ -48,6 +56,15 @@ export default function ChatSidebarHeader({ name, avatar }) {
                 <Avatar src={avatar} alt="" className={classes.avatar} />
             </OnlineBadge>
             <Typography component="p" className={classes.chatUsername}>{name}</Typography>
+            <Tooltip title="Logout" aria-label="Logout">
+                <IconButton
+                    color="inherit"
+                    aria-label="Logout"
+                    edge="end"
+                    onClick={logoutHandler}
+                    className={classes.menuButton}
+                ><ExitToAppIcon /></IconButton>
+            </Tooltip>
         </Box>
     );
 }

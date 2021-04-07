@@ -19,16 +19,24 @@ const useStyles = makeStyles(theme => ({
  */
 export default function Dashboard() {
   const classes = useStyles();
-  const [showSidebar, setShowSidebar] = React.useState(false); 
+  const [showSidebar, setShowSidebar] = React.useState(false);
+
   const handleOpenSidebar = () => {
     setShowSidebar(!showSidebar);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   return (
     <Box className={classes.root}>
       <CssBaseline />
-      <ChatSidebar openSidebar={showSidebar} closeSidebarHandler={handleOpenSidebar}/>
-      <ChatPane openSidebarHandler={handleOpenSidebar}/>
+      <ChatSidebar openSidebar={showSidebar}
+        logoutHandler={handleLogout}
+        closeSidebarHandler={handleOpenSidebar} />
+      <ChatPane openSidebarHandler={handleOpenSidebar} />
     </Box>
   );
 }

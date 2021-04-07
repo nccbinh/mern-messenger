@@ -59,7 +59,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ChatSidebar({openSidebar, closeSidebarHandler}, props) {
+export default function ChatSidebar({openSidebar, closeSidebarHandler, logoutHandler}, props) {
     const { window } = props;
     const [search, setSearch] = React.useState("");
     const classes = useStyles();
@@ -71,7 +71,7 @@ export default function ChatSidebar({openSidebar, closeSidebarHandler}, props) {
     const drawer = (
         <Box className={classes.chatSidebar}>
             <Box>
-                <ChatSidebarHeader name="thomas" avatar={Avatar1} />
+                <ChatSidebarHeader name="thomas" avatar={Avatar1} logoutHandler={logoutHandler} />
             </Box>
             <Box fontWeight={600} fontSize="h5.fontSize">
                 Chats

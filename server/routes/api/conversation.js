@@ -15,7 +15,7 @@ const Validator = require('../../middlewares/validator');
  * @description get all conversations of a user by username.
  * @returns 201 if success, 422 if fail.
  */
-router.get('/', Auth, Validator.searchConversation, async (req, res, next) => {
+router.get('/', Auth, async (req, res, next) => {
     // gets username from request
     const userId = req.user.id;
     // gets all conversations and sorts by last updated
