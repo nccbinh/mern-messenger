@@ -48,6 +48,7 @@ UserSchema.methods.validatePassword = function (password) {
  */
 UserSchema.methods.generateJWT = function (secret, expiration) {
     return jwt.sign({
+        id: this._id,
         username: this.username,
         expiration: expiration
     }, secret);
