@@ -21,9 +21,12 @@ const useStyles = makeStyles(theme => ({
     chatPaneHeaderUsername: {
         fontSize: "25px",
         fontWeight: "600",
-        marginLeft: "2rem",
+        marginLeft: theme.spacing(4),
         display: "inline-block",
-        verticalAlign: "middle"
+        verticalAlign: "middle",
+        [theme.breakpoints.down('xs')]: {
+            marginLeft: theme.spacing(2)
+        }
     },
     menuButton: {
         marginLeft: theme.spacing(2),
