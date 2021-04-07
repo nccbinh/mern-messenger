@@ -28,12 +28,18 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ChatInput() {
+export default function ChatInput({ messageHandler }) {
   const [message, setMessage] = React.useState("");
   const classes = useStyles();
 
   const handleChange = (e) => {
     setMessage(e.target.value);
+  }
+
+  const handleSubmit = () => {
+    if(!message) return;
+    messageHandler(message);
+    setMessage("");
   }
 
   return (
@@ -46,10 +52,16 @@ export default function ChatInput() {
           disableUnderline: true,
           classes: { input: classes.inputs },
           endAdornment: (
-            <Button className={classes.send}>
+            <Button className={classes.send} onClick={handleSubmit}>
               Send
             </Button>
           )
+        }}
+        onKeyPress={(ev) => {
+          if (ev.key === 'Enter') {
+            handleSubmit();
+            ev.preventDefault();
+          }
         }}
         name="message"
         autoFocus

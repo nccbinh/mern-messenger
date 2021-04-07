@@ -7,7 +7,6 @@ import React from 'react';
 import ChatPaneHeader from "./ChatPaneHeader";
 import ChatInput from "./ChatInput";
 import ChatBody from "./ChatPaneBody";
-import Avatar from "../../assets/images/avatar/2.png";
 import { Box, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -16,13 +15,15 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ChatPane({openSidebarHandler}) {
+export default function ChatPane({name, avatar, online, messages, messageHandler, openSidebarHandler}) {
     const classes = useStyles();
     return (
         <Box className={classes.root}>
-            <ChatPaneHeader name="santiago" openSidebarHandler={openSidebarHandler} />
-            <ChatBody avatar={Avatar} name="santiago" />
-            <ChatInput />
+            <ChatPaneHeader 
+                name={name} online={online}
+                openSidebarHandler={openSidebarHandler} />
+            <ChatBody avatar={avatar} messages={messages} name={name} />
+            <ChatInput messageHandler={messageHandler}/>
         </Box>
     );
 }

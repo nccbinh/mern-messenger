@@ -8,10 +8,6 @@ import { TextField, Hidden, Box, makeStyles, Drawer } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import ChatSidebarHeader from "./ChatSidebarHeader";
 import ChatUser from "./ChatUser";
-import Avatar1 from "../../assets/images/avatar/7.png";
-import Avatar2 from "../../assets/images/avatar/2.png";
-import Avatar3 from "../../assets/images/avatar/3.png";
-import Avatar4 from "../../assets/images/avatar/4.png";
 
 const drawerWidth = 350;
 const useStyles = makeStyles(theme => ({
@@ -59,7 +55,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ChatSidebar({openSidebar, closeSidebarHandler, logoutHandler}, props) {
+export default function ChatSidebar({ username, avatar, conversations, openSidebar, closeSidebarHandler, logoutHandler }, props) {
     const { window } = props;
     const [search, setSearch] = React.useState("");
     const classes = useStyles();
@@ -68,10 +64,14 @@ export default function ChatSidebar({openSidebar, closeSidebarHandler, logoutHan
         setSearch(e.target.value);
     }
 
+    const handleConvClick = (id) => {
+        console.log(id);
+    }
+
     const drawer = (
         <Box className={classes.chatSidebar}>
             <Box>
-                <ChatSidebarHeader name="thomas" avatar={Avatar1} logoutHandler={logoutHandler} />
+                <ChatSidebarHeader name={username} avatar={avatar} logoutHandler={logoutHandler} />
             </Box>
             <Box fontWeight={600} fontSize="h5.fontSize">
                 Chats
@@ -95,9 +95,15 @@ export default function ChatSidebar({openSidebar, closeSidebarHandler, logoutHan
                 />
             </Box>
             <Box className={classes.chatUsers}>
-                <ChatUser name="santiago" message="Where are you from?" avatar={Avatar2} />
-                <ChatUser name="chiumbo" message="Sure! What time?" avatar={Avatar3} />
-                <ChatUser name="hualing" message="Do you have any plan?" avatar={Avatar4} />
+                {conversations.map((conv) => {
+                    return <ChatUser name={conv.name}
+                        key={conv.id}
+                        clickHandler={() => {handleConvClick(conv.id)}}
+                        online={conv.online}
+                        unread={conv.unread}
+                        message={conv.preview}
+                        avatar={conv.avatar} />
+                })}
             </Box>
         </Box>
     );
@@ -108,7 +114,7 @@ export default function ChatSidebar({openSidebar, closeSidebarHandler, logoutHan
         <nav className={classes.drawer}>
             <Hidden smUp>
                 <Drawer
-                container={container}
+                    container={container}
                     variant="temporary"
                     anchor={'left'}
                     open={openSidebar}
