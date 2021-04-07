@@ -8,16 +8,21 @@ import ChatPaneHeader from "./ChatPaneHeader";
 import ChatInput from "./ChatInput";
 import ChatBody from "./ChatPaneBody";
 import Avatar from "../../assets/images/avatar/2.png";
-import { Grid, Box } from '@material-ui/core';
+import { Box, makeStyles } from '@material-ui/core';
 
-export default function ChatPane() {
+const useStyles = makeStyles(theme => ({
+    root: {
+        flexGrow: 1
+    }
+}));
+
+export default function ChatPane({openSidebarHandler}) {
+    const classes = useStyles();
     return (
-        <Grid xs={12} sm={12} md={8} elevation={6} square>
-            <Box>
-                <ChatPaneHeader name="santiago"/>
-                <ChatBody avatar={Avatar} name="santiago"/>
-                <ChatInput />
-            </Box>
-        </Grid>
+        <Box className={classes.root}>
+            <ChatPaneHeader name="santiago" openSidebarHandler={openSidebarHandler} />
+            <ChatBody avatar={Avatar} name="santiago" />
+            <ChatInput />
+        </Box>
     );
 }

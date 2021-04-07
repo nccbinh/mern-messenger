@@ -27,7 +27,10 @@ const useStyles = makeStyles(theme => ({
         maxWidth: "200px",
         whiteSpace: "nowrap",
         overflow: "hidden",
-        textOverflow: "ellipsis"
+        textOverflow: "ellipsis",
+        [theme.breakpoints.down('xs')]: {
+            maxWidth: "40vw",
+        }
     },
     chatUser: {
         display: "flex",

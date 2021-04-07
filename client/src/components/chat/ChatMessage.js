@@ -11,23 +11,28 @@ const useStyles = makeStyles(theme => ({
         display: "flow-root"
     },
     avatar: {
-        width: "40",
-        height: "40",
-        marginTop: "auto",
-        marginBottom: "auto",
-        marginRight: "0.5rem"
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(1)
     },
     chatMessageDiv: {
-        margin: "0.5rem",
+        margin: theme.spacing(1)
     },
     chatMessageFromDiv: {
         maxWidth: "60%",
-        display: "flex"
+        marginRight: theme.spacing(4),
+        display: "flex",
+        [theme.breakpoints.down('md')]: {
+            maxWidth: "400px"
+        }
     },
     chatMessageToDiv: {
         maxWidth: "60%",
+        marginLeft: theme.spacing(4),
         float: "right",
-        textAlign: "end"
+        textAlign: "end",
+        [theme.breakpoints.down('md')]: {
+            maxWidth: "400px"
+        }
     },
     time: {
         marginBottom: "0.2rem",
@@ -61,18 +66,18 @@ export default function ChatMessage({ from, time, message, avatar }) {
     const classes = useStyles();
     return (
         from ? <Box className={classes.chatMessageRoot}>
-            <Box className={[classes.chatMessageDiv, classes.chatMessageFromDiv]}>
+            <Box className={classes.chatMessageDiv + " " + classes.chatMessageFromDiv}>
                 <Avatar src={avatar} alt="" className={classes.avatar} />
                 <div>
                     <Typography className={classes.time}>{from} {time}</Typography>
-                    <Typography className={[classes.chatMessage, classes.chatMessageFrom]}>{message}</Typography>
+                    <Typography className={classes.chatMessage + " " + classes.chatMessageFrom}>{message}</Typography>
                 </div>
             </Box>
         </Box>
             : <Box className={classes.chatMessageRoot}>
-                <Box className={[classes.chatMessageDiv, classes.chatMessageToDiv]}>
+                <Box className={classes.chatMessageDiv + " " + classes.chatMessageToDiv}>
                     <Typography className={classes.time}>{time}</Typography>
-                    <Typography className={[classes.chatMessage, classes.chatMessageTo]}>{message}</Typography>
+                    <Typography className={classes.chatMessage + " " + classes.chatMessageTo}>{message}</Typography>
                 </Box></Box>
     );
 }

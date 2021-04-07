@@ -3,13 +3,14 @@
  * @since 0.1.0
  */
 import React from "react";
-import { CssBaseline, Grid, makeStyles } from '@material-ui/core';
+import { CssBaseline, Box, makeStyles } from '@material-ui/core';
 import ChatPane from "../components/chat/ChatPane";
 import ChatSidebar from "../components/chat/ChatSidebar";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    background: "white"
+    background: "white",
+    display: "flex"
   }
 }));
 
@@ -18,12 +19,16 @@ const useStyles = makeStyles(theme => ({
  */
 export default function Dashboard() {
   const classes = useStyles();
+  const [showSidebar, setShowSidebar] = React.useState(false); 
+  const handleOpenSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
 
   return (
-    <Grid container component="main" className={classes.root}>
+    <Box className={classes.root}>
       <CssBaseline />
-      <ChatSidebar />
-      <ChatPane />
-    </Grid>
+      <ChatSidebar openSidebar={showSidebar} closeSidebarHandler={handleOpenSidebar}/>
+      <ChatPane openSidebarHandler={handleOpenSidebar}/>
+    </Box>
   );
 }
