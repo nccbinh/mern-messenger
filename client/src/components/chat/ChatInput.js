@@ -52,7 +52,9 @@ export default function ChatInput({ messageHandler }) {
           disableUnderline: true,
           classes: { input: classes.inputs },
           endAdornment: (
-            <Button className={classes.send} onClick={handleSubmit}>
+            <Button className={classes.send} 
+              disabled={!message}
+              onClick={handleSubmit}>
               Send
             </Button>
           )
