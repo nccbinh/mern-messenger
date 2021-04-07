@@ -101,21 +101,6 @@ exports.searchUser = (req, res, next) => {
 };
 
 /**
- * Conversation Search Validator
- */
-exports.searchConversation = (req, res, next) => {
-    const username = req.user.username;
-    // validates search term
-    if (!username) {
-        return res.status(422).json({
-            message: 'Invalid request.'
-        });
-    }
-
-    next();
-};
-
-/**
  * Start Conversation Validator
  */
 exports.newConversation = (req, res, next) => {
