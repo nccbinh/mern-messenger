@@ -4,15 +4,34 @@
  * @since 0.1.0
  */
 import React from 'react';
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import { useStyles } from "../../assets/styles/chat";
+import { Avatar, Typography, Box, makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles(theme => ({
+    chatSidebarHeader: {
+        lineHeight: "6rem",
+        height: "6rem",
+        display: "flex"
+    },
+    chatUsername: {
+        marginLeft: theme.spacing(1),
+        lineHeight: "6rem",
+        fontSize: "18px",
+        fontWeight: "600"
+    },
+    avatar: {
+        width: "50",
+        height: "50",
+        marginTop: "auto",
+        marginBottom: "auto",
+        marginRight: theme.spacing(1)
+    }
+}));
 
 export default function ChatSidebarHeader({ name, avatar }) {
     const classes = useStyles();
     return (
         <Box className={classes.chatSidebarHeader}>
-            <img src={avatar} width={50} height={50} alt="" className={classes.avatar} />
+            <Avatar src={avatar} alt="" className={classes.avatar} />
             <Typography component="p" className={classes.chatUsername}>{name}</Typography>
         </Box>
     );

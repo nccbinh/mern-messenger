@@ -4,9 +4,17 @@
  * @since 0.1.0
  */
  import React from 'react';
- import Box from "@material-ui/core/Box";
- import { useStyles } from "../../assets/styles/chat";
  import ChatMessage from "./ChatMessage";
+ import { Box, makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles(theme => ({
+    chatPaneBody: {
+        height: "calc(100vh - 13rem)",
+        overflowX: "hidden",
+        overflowY: "auto",
+        padding: "1rem"
+    }
+}));
  
  export default function ChatPaneBody({ name, avatar}) {
      const classes = useStyles();
