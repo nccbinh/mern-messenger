@@ -1,5 +1,5 @@
 /**
- * User Model
+ * User API
  * @author Binh Nguyen
  * @since 0.0.1
  */
@@ -64,18 +64,18 @@ router.post('/login', Validator.login, async (req, res, next) => {
 
     // looks for user
     return User.findOne({ 'username': user.username }).then((usr) => {
-        if(usr && usr.validatePassword(user.password)) {
+        if (usr && usr.validatePassword(user.password)) {
             // signs in when password is correct
-            const token = usr.generateJWT(process.env.JWT_SECRET, 
+            const token = usr.generateJWT(process.env.JWT_SECRET,
                 Date.now() + parseInt(process.env.JWT_EXPIRATION));
-            res.cookie(process.env.JWT_PARAM, token, 
+            res.cookie(process.env.JWT_PARAM, token,
                 {
                     httpOnly: true,
                     secure: false
                 }
-                ).status(200).json({
-                    message: 'Login successfully.'
-                });
+            ).status(200).json({
+                message: 'Login successfully.'
+            });
         } else {
             return res.status(401).json({
                 errors: {
@@ -91,17 +91,39 @@ router.post('/login', Validator.login, async (req, res, next) => {
  * @description Logout for user.
  * @returns 201 if success, 422 if fail.
  */
- router.get('/logout', Auth, async (req, res, next) => {
+router.get('/logout', Auth, async (req, res, next) => {
     if (req.cookies[process.env.JWT_PARAM]) {
         res.clearCookie(process.env.JWT_PARAM)
-        .status(201).json({
-            message: 'Logout successfully.'
-        })
+            .status(200).json({
+                message: 'Logout successfully.'
+            })
     } else {
         res.status(422).json({
             message: 'Invalid token.'
         })
     }
+});
+
+/**
+ * GET search
+ * @description Search for users by username.
+ * @returns 200 if success, 500 if fail.
+ */
+router.get('/search', Auth, async (req, res, next) => {
+    const searchTerm = req.query.term;
+    User.find({ username: { $regex: searchTerm, $options: "i" } }, 'username').then(
+        (users) => {
+            // returns only usernames
+            return res.status(200)
+                .json({ users: users });
+        },
+        (err) => {
+            console.log(err);
+            return res.status(500).json({
+                message: 'Internal server error. Please try again later.'
+            });
+        }
+    );
 });
 
 module.exports = router;
