@@ -37,7 +37,6 @@ export default function ChatInput({ messageHandler }) {
   }
 
   const handleSubmit = () => {
-    if(!message) return;
     messageHandler(message);
     setMessage("");
   }

@@ -76,6 +76,10 @@ export default function Dashboard() {
     console.log(msg);
   }
 
+  const handleSearch = (keyword) => {
+    console.log(keyword);
+  }
+
   return (
     <Box className={classes.root}>
       <CssBaseline />
@@ -85,6 +89,7 @@ export default function Dashboard() {
         conversations={users}
         openSidebar={showSidebar}
         logoutHandler={handleLogout}
+        searchHandler={handleSearch}
         closeSidebarHandler={handleOpenSidebar} />
       <ChatPane
         name="santiago"

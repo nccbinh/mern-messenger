@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ChatSidebar({ username, avatar, conversations, openSidebar, closeSidebarHandler, logoutHandler }, props) {
+export default function ChatSidebar({ username, avatar, conversations, openSidebar, searchHandler, closeSidebarHandler, logoutHandler }, props) {
     const { window } = props;
     const [search, setSearch] = React.useState("");
     const classes = useStyles();
@@ -66,6 +66,11 @@ export default function ChatSidebar({ username, avatar, conversations, openSideb
 
     const handleConvClick = (id) => {
         console.log(id);
+    }
+
+    const handleSearch = () => {
+        if (!search) return;
+        searchHandler(search);
     }
 
     const drawer = (
@@ -88,6 +93,12 @@ export default function ChatSidebar({ username, avatar, conversations, openSideb
                             <Search className={classes.chatSearch} />
                         )
                     }}
+                    onKeyPress={(ev) => {
+                        if (ev.key === 'Enter') {
+                            handleSearch();
+                            ev.preventDefault();
+                        }
+                    }}
                     name="search"
                     placeholder="Search"
                     value={search}
@@ -98,7 +109,7 @@ export default function ChatSidebar({ username, avatar, conversations, openSideb
                 {conversations.map((conv) => {
                     return <ChatUser name={conv.name}
                         key={conv.id}
-                        clickHandler={() => {handleConvClick(conv.id)}}
+                        clickHandler={() => { handleConvClick(conv.id) }}
                         online={conv.online}
                         unread={conv.unread}
                         message={conv.preview}
