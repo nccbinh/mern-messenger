@@ -17,7 +17,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
 import { useStyles } from "../assets/styles/authentication";
-import AuthSidebar from "../components/AuthSidebar";
+import AuthSidebar from "../components/auth/AuthSidebar";
 const AuthService = require("../services/authService");
 
 /**
@@ -26,7 +26,7 @@ const AuthService = require("../services/authService");
 export default function Login() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
-  const [message, setMessage] = React.useState('');
+  const [message, setMessage] = React.useState("");
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") return;
@@ -41,9 +41,7 @@ export default function Login() {
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
             <span className={classes.link}>
-              <span className={classes.accText}>
-                Don't have an account?
-              </span>
+              <span className={classes.accText}>Don't have an account?</span>
               <Link to="/signup" className={classes.link}>
                 <Button
                   color="default"
@@ -51,7 +49,7 @@ export default function Login() {
                   variant="contained"
                 >
                   Create account
-              </Button>
+                </Button>
               </Link>
             </span>
           </Box>
@@ -67,22 +65,24 @@ export default function Login() {
             <Formik
               initialValues={{
                 username: "",
-                password: ""
+                password: "",
               }}
               validationSchema={Yup.object().shape({
-                username: Yup.string()
-                  .required("Username is required"),
+                username: Yup.string().required("Username is required"),
                 password: Yup.string()
                   .required("Password is required")
                   .max(100, "Password is too long")
-                  .min(6, "Password too short")
+                  .min(6, "Password too short"),
               })}
-              onSubmit={({ username, password }, { setStatus, setSubmitting, setErrors }) => {
+              onSubmit={(
+                { username, password },
+                { setStatus, setSubmitting, setErrors }
+              ) => {
                 setStatus();
                 AuthService.login(username, password).then(
                   (res) => {
                     // useHistory push to chat
-                    if(res.errors) {
+                    if (res.errors) {
                       setErrors(res.errors);
                     } else {
                       setMessage(res.message);
@@ -93,7 +93,7 @@ export default function Login() {
                     }
                     return;
                   },
-                  error => {
+                  (error) => {
                     setSubmitting(false);
                     setStatus(error);
                   }
@@ -116,7 +116,7 @@ export default function Login() {
                     fullWidth
                     margin="normal"
                     InputLabelProps={{
-                      shrink: true
+                      shrink: true,
                     }}
                     InputProps={{ classes: { input: classes.inputs } }}
                     name="username"
@@ -137,9 +137,9 @@ export default function Login() {
                     fullWidth
                     margin="normal"
                     InputLabelProps={{
-                      shrink: true
+                      shrink: true,
                     }}
-                    InputProps={{ classes: { input: classes.inputs }}}
+                    InputProps={{ classes: { input: classes.inputs } }}
                     type="password"
                     autoComplete="current-password"
                     helperText={touched.password ? errors.password : ""}
@@ -170,7 +170,7 @@ export default function Login() {
         <Snackbar
           anchorOrigin={{
             vertical: "bottom",
-            horizontal: "center"
+            horizontal: "center",
           }}
           open={open}
           autoHideDuration={6000}

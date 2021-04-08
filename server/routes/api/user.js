@@ -109,7 +109,7 @@ router.get('/logout', Auth, async (req, res, next) => {
  * @description Search for users by username.
  * @returns 200 if success, 500 if fail.
  */
-router.get('/search', Auth, async (req, res, next) => {
+router.get('/search', Auth, Validator.searchUser, async (req, res, next) => {
     const searchTerm = req.query.term;
     User.find({ username: { $regex: searchTerm, $options: "i" } }, 'username').then(
         (users) => {

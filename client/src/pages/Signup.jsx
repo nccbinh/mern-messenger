@@ -17,7 +17,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import Typography from "@material-ui/core/Typography";
 import { useStyles } from "../assets/styles/authentication";
-import AuthSidebar from "../components/AuthSidebar";
+import AuthSidebar from "../components/auth/AuthSidebar";
 const AuthService = require("../services/authService");
 
 /**
@@ -26,24 +26,22 @@ const AuthService = require("../services/authService");
 export default function Register() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
-  const [message, setMessage] = React.useState('');
+  const [message, setMessage] = React.useState("");
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") return;
     setOpen(false);
   };
-  
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
-      <AuthSidebar/>
+      <AuthSidebar />
       <Grid item xs={12} sm={12} md={7} elevation={6} component={Paper} square>
         <Box className={classes.buttonHeader}>
           <Box p={1} alignSelf="flex-end" alignItems="center">
-          <span className={classes.link}>
-              <span className={classes.accText}>
-                Already have an account?
-              </span>
+            <span className={classes.link}>
+              <span className={classes.accText}>Already have an account?</span>
               <Link to="/login" className={classes.link}>
                 <Button
                   color="default"
@@ -51,7 +49,7 @@ export default function Register() {
                   variant="contained"
                 >
                   Login
-              </Button>
+                </Button>
               </Link>
             </span>
           </Box>
@@ -72,7 +70,7 @@ export default function Register() {
               initialValues={{
                 username: "",
                 email: "",
-                password: ""
+                password: "",
               }}
               validationSchema={Yup.object().shape({
                 username: Yup.string()
@@ -84,7 +82,7 @@ export default function Register() {
                 password: Yup.string()
                   .required("Password is required")
                   .max(100, "Password is too long")
-                  .min(6, "Password too short")
+                  .min(6, "Password too short"),
               })}
               onSubmit={(
                 { username, email, password },
@@ -94,7 +92,7 @@ export default function Register() {
                 AuthService.register(username, email, password).then(
                   (res) => {
                     // useHistory push to chat
-                    if(res.errors) {
+                    if (res.errors) {
                       setErrors(res.errors);
                     } else {
                       setMessage(res.message);
@@ -105,7 +103,7 @@ export default function Register() {
                     }
                     return;
                   },
-                  error => {
+                  (error) => {
                     setSubmitting(false);
                     setStatus(error);
                   }
@@ -128,7 +126,7 @@ export default function Register() {
                     fullWidth
                     margin="normal"
                     InputLabelProps={{
-                      shrink: true
+                      shrink: true,
                     }}
                     InputProps={{ classes: { input: classes.inputs } }}
                     name="username"
@@ -149,7 +147,7 @@ export default function Register() {
                     fullWidth
                     margin="normal"
                     InputLabelProps={{
-                      shrink: true
+                      shrink: true,
                     }}
                     InputProps={{ classes: { input: classes.inputs } }}
                     name="email"
@@ -169,10 +167,10 @@ export default function Register() {
                     fullWidth
                     margin="normal"
                     InputLabelProps={{
-                      shrink: true
+                      shrink: true,
                     }}
                     InputProps={{
-                      classes: { input: classes.inputs }
+                      classes: { input: classes.inputs },
                     }}
                     type="password"
                     autoComplete="current-password"
@@ -202,7 +200,7 @@ export default function Register() {
         <Snackbar
           anchorOrigin={{
             vertical: "bottom",
-            horizontal: "center"
+            horizontal: "center",
           }}
           open={open}
           autoHideDuration={6000}
