@@ -197,6 +197,7 @@ export default function Dashboard() {
     <Box className={classes.root}>
       <CssBaseline />
       <ChatSidebar
+        selected={conversation.name}
         username={username}
         conversations={search ? users : conversations}
         openSidebar={showSidebar}

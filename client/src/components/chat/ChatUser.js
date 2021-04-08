@@ -51,9 +51,13 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: "inset 0 5px 15px rgb(0 0 0 / 10%)",
     },
   },
+  selected: {
+    background: "#E9EEF9",
+  },
 }));
 
 export default function ChatUser({
+  selected,
   name,
   message,
   unread,
@@ -64,7 +68,10 @@ export default function ChatUser({
   const classes = useStyles();
   return (
     <Box className={classes.chatMessageRoot}>
-      <Box onClick={clickHandler} className={classes.chatUser}>
+      <Box
+        onClick={clickHandler}
+        className={classes.chatUser + " " + (selected ? classes.selected : "")}
+      >
         {online ? (
           <OnlineBadge
             className={classes.avatarBadge}

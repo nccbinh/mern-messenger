@@ -78,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ChatSidebar(
   {
+    selected,
     online,
     username,
     avatar,
@@ -159,6 +160,7 @@ export default function ChatSidebar(
                 clickHandler={() => {
                   handleConvClick(conv.id, conv.name);
                 }}
+                selected={selected==conv.name}
                 online={chatHelper.checkOnline(conv.name, online)}
                 unread={conv.unread}
                 message={conv.preview}
