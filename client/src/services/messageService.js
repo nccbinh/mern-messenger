@@ -9,11 +9,16 @@ import Socket from "../socket";
  * @name connect
  * @description intializes socket connection
  */
-export function connect(errorHandler) {
+export function connect(errorHandler, onlineHandler) {
   // Client socket initialization
   Socket.connect();
+  // handles connection error
   Socket.on("connect_error", (err) => {
     errorHandler(err);
+  });
+  // handles online user list
+  Socket.on("online", (users) => {
+    onlineHandler(users);
   });
 }
 

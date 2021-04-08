@@ -5,7 +5,6 @@
  */
 const emailValidator = require("email-validator");
 const passwordValidator = require("password-validator");
-const authHelper = require("../helpers/authHelper");
 
 /**
  * Login Validator
@@ -144,17 +143,4 @@ exports.newConversation = (req, res, next) => {
   } else {
     next();
   }
-};
-
-/**
- * Socket Connection Validator
- */
-exports.connection = (socket, next) => {
-    // get payload
-    const payload = authHelper.getPayload(socket.request.headers.cookie);
-    // checks if token is expired
-    if (!payload || Date.now() > payload.expiration) {
-        return next(new Error("Unauthorized"), false);
-    }
-    next();
 };

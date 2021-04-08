@@ -89,8 +89,12 @@ export default function Dashboard() {
     }
   };
 
+  const handleOnline = (users) => {
+    console.log(users);
+  }
+
   // connects socket
-  MessageService.connect(handleSocketError);
+  MessageService.connect(handleSocketError, handleOnline);
 
   return (
     <Box className={classes.root}>
