@@ -10,6 +10,7 @@ import Avatar1 from "../assets/images/avatar/7.png";
 import Avatar2 from "../assets/images/avatar/2.png";
 import Avatar3 from "../assets/images/avatar/3.png";
 import Avatar4 from "../assets/images/avatar/4.png";
+const MessageService = require("../services/messageService");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,6 +71,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/login";
+    MessageService.disconnect();
   };
 
   const handleSubmitMessage = (msg) => {
@@ -79,6 +81,16 @@ export default function Dashboard() {
   const handleSearch = (keyword) => {
     console.log(keyword);
   };
+
+  const handleSocketError = (err) => {
+    // signs out if token is expired
+    if (err.message === "Unauthorized") {
+      handleLogout();
+    }
+  };
+
+  // connects socket
+  MessageService.connect(handleSocketError);
 
   return (
     <Box className={classes.root}>
