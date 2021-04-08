@@ -16,7 +16,10 @@ let online = [];
 io.on("connection", (socket) => {
   // gets payload from cookie
   const cookie = socket.request.headers.cookie;
-  if (!cookie) return (new Error("Unauthorized"));
+  if (!cookie) {
+    socket.emit("error", "Unauthorized");
+    return;
+  }
   // gets token from cookie
   const token = cookie.replace(process.env.JWT_PARAM + "=", "");
   // decodes token
@@ -24,7 +27,8 @@ io.on("connection", (socket) => {
   // checks if token is expired
   if (!payload || Date.now() > payload.expiration) {
     logout(payload.username);
-    return (new Error("Unauthorized"));
+    socket.emit("error", "Unauthorized");
+    return;
   }
 
   console.log(`User '${payload.username}' is connected with ID '${socket.id}'`);

@@ -9,41 +9,56 @@ import Socket from "../socket";
  * @name connect
  * @description intializes socket connection
  */
-export function connect(errorHandler, onlineHandler) {
+export async function connect(errorHandler, onlineHandler, messageHandler) {
   // Client socket initialization
   Socket.connect();
   // handles connection error
-  Socket.on("connect_error", (err) => {
+  Socket.on("error", (err) => {
     errorHandler(err);
   });
   // handles online user list
   Socket.on("online", (users) => {
     onlineHandler(users);
   });
+  // handles receive message
+  Socket.on("message", (message) => {
+    messageHandler(message);
+  });
 }
 
 /**
  * @name disconnect
- * @description disconnect socket connection
+ * @description disconnects socket connection
  */
-export function disconnect() {
+export async function disconnect() {
   Socket.disconnect();
 }
 
 /**
- * @name register
- * @description calls register api for registering a new user
- * @returns register information
+ * @name sendMessage
+ * @description sends message via socker
  */
-export async function register(username, email, password) {
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user: { username: username, email: email, password: password },
-    }),
-  };
-  const res = await fetch(`api/user/register`, requestOptions).then((res) =>
+export async function sendMessage(message) {
+  Socket.emit("message", message);
+}
+
+/**
+ * @name getConversations
+ * @description calls get conversations api
+ * @returns conversation list
+ */
+export async function getConversations() {
+  const res = await fetch(`api/conversation/`).then((res) => res.json());
+  return res;
+}
+
+/**
+ * @name search
+ * @description calls search api for searching users
+ * @returns list of matching users
+ */
+export async function search(keyword) {
+  const res = await fetch(`api/user/search?keyword=${keyword}`).then((res) =>
     res.json()
   );
   return res;

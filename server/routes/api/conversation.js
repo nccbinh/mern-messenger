@@ -19,7 +19,8 @@ router.get('/', Auth, async (req, res, next) => {
     // gets username from request
     const userId = req.user.id;
     // gets all conversations and sorts by last updated
-    Conversation.find({ participants: userId }).sort('-lastUpdated').then(
+    Conversation.find({ participants: userId }).sort('-lastUpdated')
+    .populate('participants', 'username').then(
         (results) => {
             // breaks if no matches
             if (!results || !results.length) {
@@ -32,7 +33,7 @@ router.get('/', Auth, async (req, res, next) => {
                     participants: c.participants,
                     lastUpdated: c.lastUpdated,
                     // shows only the most recent message for preview
-                    preview: c.messages[c.messages.length - 1].content
+                    preview: c.messages[c.messages.length - 1]
                 }
             });
             return res.status(200).json(conv);

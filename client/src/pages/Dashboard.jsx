@@ -25,33 +25,38 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const classes = useStyles();
   const [showSidebar, setShowSidebar] = React.useState(false);
+  const [currentConversation, setCurrentConversation] = React.useState("");
+  const [conversations, setConversations] = React.useState([]);
+  const [users, setUsers] = React.useState([]);
+  const [search, setSearch] = React.useState(false);
+  const [searching, setSearching] = React.useState(false);
   const username = localStorage.getItem("user");
-  const users = [
-    {
-      id: 0,
-      name: "santiago",
-      lastUpdate: "",
-      preview: "Where are you from?",
-      unread: false,
-      online: true,
-    },
-    {
-      id: 1,
-      name: "chiumbo",
-      lastUpdate: "",
-      preview: "Sure! What time?",
-      unread: true,
-      online: false,
-    },
-    {
-      id: 2,
-      name: "hualing",
-      lastUpdate: "",
-      preview: "Do you have any plan?",
-      unread: false,
-      online: false,
-    },
-  ];
+  // const users = [
+  //   {
+  //     id: 0,
+  //     name: "santiago",
+  //     lastUpdate: "",
+  //     preview: "Where are you from?",
+  //     unread: false,
+  //     online: true,
+  //   },
+  //   {
+  //     id: 1,
+  //     name: "chiumbo",
+  //     lastUpdate: "",
+  //     preview: "Sure! What time?",
+  //     unread: true,
+  //     online: false,
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "hualing",
+  //     lastUpdate: "",
+  //     preview: "Do you have any plan?",
+  //     unread: false,
+  //     online: false,
+  //   },
+  // ];
   const messages = [
     {
       name: "santiago",
@@ -63,6 +68,25 @@ export default function Dashboard() {
       message: "I'm from New York",
     },
   ];
+
+  const fetchConversations = () => {
+    MessageService.getConversations().then((conv) => {
+      if (!conv || !conv.map) return;
+      setConversations(
+        conv.map((c) => {
+          return {
+            id: c.id,
+            name:
+              username == c.participants[0].username
+                ? c.participants[1].username
+                : c.participants[0].username,
+            lastUpdated: c.lastUpdated,
+            preview: c.preview ? c.preview.content : "",
+          };
+        })
+      );
+    });
+  };
 
   const handleOpenSidebar = () => {
     setShowSidebar(!showSidebar);
@@ -76,36 +100,68 @@ export default function Dashboard() {
 
   const handleSubmitMessage = (msg) => {
     console.log(msg);
+    const message = {
+      cid: "",
+      message: "",
+    };
   };
 
   const handleSearch = (keyword) => {
-    console.log(keyword);
+    setSearch(keyword);
+    if (!keyword || keyword.length < 3) {
+      setUsers([]);
+      return;
+    }
+    setSearching(true);
+    MessageService.search(keyword).then((res) => {
+      const results = [];
+      res.users.map((u) => {
+        if (u.username !== username)
+          results.push({
+            id: u._id,
+            name: u.username,
+            lastUpdated: 0,
+          });
+      });
+      console.log(results);
+      setUsers(results);
+      setSearching(false);
+    });
   };
 
   const handleSocketError = (err) => {
     // signs out if token is expired
-    if (err.message === "Unauthorized") {
+    if (err === "Unauthorized") {
       handleLogout();
     }
   };
 
   const handleOnline = (users) => {
     console.log(users);
-  }
+  };
+
+  const handleReceiveMessage = (msg) => {
+    console.log(msg);
+  };
 
   // connects socket
-  MessageService.connect(handleSocketError, handleOnline);
+  MessageService.connect(handleSocketError, handleOnline, handleReceiveMessage);
+
+  React.useEffect(() => {
+    // fetch conversations
+    fetchConversations();
+  }, []);
 
   return (
     <Box className={classes.root}>
       <CssBaseline />
       <ChatSidebar
         username={username}
-        avatar={Avatar1}
-        conversations={users}
+        conversations={search ? users : conversations}
         openSidebar={showSidebar}
         logoutHandler={handleLogout}
         searchHandler={handleSearch}
+        searchLoading={searching}
         closeSidebarHandler={handleOpenSidebar}
       />
       <ChatPane

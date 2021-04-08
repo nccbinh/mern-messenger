@@ -4,7 +4,15 @@
  * @since 0.1.0
  */
 import React from "react";
-import { TextField, Hidden, Box, makeStyles, Drawer } from "@material-ui/core";
+import {
+  TextField,
+  Hidden,
+  Box,
+  makeStyles,
+  Drawer,
+  CircularProgress,
+  Typography,
+} from "@material-ui/core";
 import { Search } from "@material-ui/icons";
 import ChatSidebarHeader from "./ChatSidebarHeader";
 import ChatUser from "./ChatUser";
@@ -50,9 +58,21 @@ const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     [theme.breakpoints.down("sm")]: {
       maxWidth: "80%",
-      flexShrink: 0
+      flexShrink: 0,
     },
   },
+  loading: {
+    marginTop: "-0.7rem",
+  },
+  emptyList: {
+    fontWeight: "600",
+    color: "#99A9C4",
+    textAlign: "center",
+    marginTop: theme.spacing(5),
+  },
+  emptyListSearch: {
+    marginBottom: "-0.3rem"
+  }
 }));
 
 export default function ChatSidebar(
@@ -62,6 +82,7 @@ export default function ChatSidebar(
     conversations,
     openSidebar,
     searchHandler,
+    searchLoading,
     closeSidebarHandler,
     logoutHandler,
   },
@@ -80,7 +101,6 @@ export default function ChatSidebar(
   };
 
   const handleSearch = () => {
-    if (!search) return;
     searchHandler(search);
   };
 
@@ -105,6 +125,13 @@ export default function ChatSidebar(
             disableUnderline: true,
             classes: { input: classes.inputSearch },
             startAdornment: <Search className={classes.chatSearch} />,
+            endAdornment: searchLoading ? (
+              <CircularProgress
+                className={classes.loading}
+                color="inherit"
+                size={20}
+              />
+            ) : null,
           }}
           onKeyPress={(ev) => {
             if (ev.key === "Enter") {
@@ -116,24 +143,29 @@ export default function ChatSidebar(
           placeholder="Search"
           value={search}
           onChange={handleChange}
+          disabled={searchLoading}
         />
       </Box>
       <Box className={classes.chatUsers}>
-        {conversations.map((conv) => {
-          return (
-            <ChatUser
-              name={conv.name}
-              key={conv.id}
-              clickHandler={() => {
-                handleConvClick(conv.id);
-              }}
-              online={conv.online}
-              unread={conv.unread}
-              message={conv.preview}
-              avatar={conv.avatar}
-            />
-          );
-        })}
+        {conversations.length > 0 ? (
+          conversations.map((conv) => {
+            return (
+              <ChatUser
+                name={conv.name}
+                key={conv.id}
+                clickHandler={() => {
+                  handleConvClick(conv.id);
+                }}
+                online={conv.online}
+                unread={conv.unread}
+                message={conv.preview}
+                avatar={conv.avatar}
+              />
+            );
+          })
+        ) : (
+          <Typography className={classes.emptyList}>Search <Search className={classes.emptyListSearch}/> and start chatting...</Typography>
+        )}
       </Box>
     </Box>
   );

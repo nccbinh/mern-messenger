@@ -12,11 +12,17 @@ const MessageSchema = new Schema({
    content: String
 }, { timestamps: { createdAt: 'created' } });
 
+const UnreadSchema = new Schema({
+   user: { type: Schema.Types.ObjectId, ref: 'User' },
+   count: Number
+});
+
 const ConversationSchema = new Schema({
    // for future use if group chat is implemented
    startedBy: { type: Schema.Types.ObjectId, ref: 'User' },
    participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-   messages: [MessageSchema]
+   messages: [MessageSchema],
+   unread: [UnreadSchema]
 }, { timestamps: { updatedAt: 'lastUpdated' } });
 
 mongoose.model('Conversation', ConversationSchema);

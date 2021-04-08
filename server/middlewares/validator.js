@@ -93,7 +93,7 @@ exports.register = (req, res, next) => {
  * Search Validator
  */
 exports.searchUser = (req, res, next) => {
-  const term = req.query.term;
+  const term = req.query.keyword;
   // validates search term
   if (!term || term.length < 3) {
     return res.status(422).json({
