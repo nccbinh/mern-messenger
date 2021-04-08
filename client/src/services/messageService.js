@@ -58,6 +58,16 @@ export async function getConversations() {
 }
 
 /**
+ * @name getConversation
+ * @description calls get conversation api
+ * @returns conversation list
+ */
+ export async function getConversation(id) {
+  const res = await fetch(`api/conversation/${id}`).then(resHandler);
+  return res;
+}
+
+/**
  * @name search
  * @description calls search api for searching users
  * @returns list of matching users

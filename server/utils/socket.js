@@ -40,6 +40,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     // removes user from online list
     logout(payload.username);
+    io.emit("online", online);
     console.log(
       `User '${payload.username}' with ID '${socket.id}' disconnected.`
     );

@@ -13,6 +13,7 @@ export default function handleResponse(response) {
       if ([401, 403].indexOf(response.status) !== -1) {
         // signs out if 401 Unauthorized or 403 Forbidden response returned from api
         localStorage.removeItem("user");
+        localStorage.removeItem("uid");
         window.location.href = "/login";
       }
     } else {

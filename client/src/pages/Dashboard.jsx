@@ -36,6 +36,7 @@ export default function Dashboard() {
   const [searching, setSearching] = React.useState(false);
   const [online, setOnline] = React.useState([]);
   const username = localStorage.getItem("user");
+  const uid = localStorage.getItem("uid");
   // const users = [
   //   {
   //     id: 0,
@@ -92,12 +93,14 @@ export default function Dashboard() {
           };
         })
       );
+      console.log(conversations);
     });
   };
 
-  const checkOnline = (name) => {
-    for (var i = 0; i < online.length; i++) {
-      if (online[i].name === name) return online[i].id;
+  const checkOnline = (name, list) => {
+    list = list ? list : online;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name === name) return list[i].id;
     }
     return null;
   };
@@ -108,6 +111,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("uid");
     window.location.href = "/login";
     MessageService.disconnect();
   };
@@ -164,6 +168,22 @@ export default function Dashboard() {
         online: checkOnline(name) != null,
       };
       setConversation(conv);
+    } else {
+      // loads existing chat
+      MessageService.getConversation(id).then((msgs) => {
+        const messages = msgs.map((m) => {
+          return {
+            name: m.author === uid ? "" : name,
+            time: new Date(m.created),
+            message: m.content,
+          };
+        });
+        let conv = {};
+        conv.name = name;
+        conv.online = checkOnline(name) != null;
+        conv.messages = messages;
+        setConversation(conv);
+      });
     }
   };
 
@@ -176,6 +196,11 @@ export default function Dashboard() {
 
   const handleOnline = (users) => {
     setOnline(users);
+    // rechecks online status
+    console.log(conversations);
+    let conv = conversations.map((c) => c.online = checkOnline(c.name, users));
+    console.log(conv);
+    setConversations(conv);
   };
 
   const handleReceiveMessage = (msg) => {

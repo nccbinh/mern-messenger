@@ -74,6 +74,7 @@ router.post('/login', Validator.login, async (req, res, next) => {
                     secure: false
                 }
             ).status(200).json({
+                id: usr._id,
                 message: 'Login successfully.'
             });
         } else {

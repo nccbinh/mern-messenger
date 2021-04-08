@@ -54,7 +54,7 @@ router.get('/', Auth, async (req, res, next) => {
  */
 router.get('/:id', Auth, async (req, res, next) => {
     const id = req.params.id;
-    Conversation.findOne({ _id: id }).then(
+    Conversation.findOne({ _id: id }).populate('author', 'username').then(
         (result) => {
             if (!result) {
                 return res.status(422).json({ message: 'Conversation not found.' });

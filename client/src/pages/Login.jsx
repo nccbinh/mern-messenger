@@ -89,6 +89,7 @@ export default function Login() {
                       setOpen(true);
                       // redirects to dashboard
                       localStorage.setItem("user", username);
+                      localStorage.setItem("uid", res.id);
                       window.location.href = "/dashboard";
                     }
                     return;
