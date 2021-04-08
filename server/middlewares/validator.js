@@ -114,6 +114,8 @@ exports.newConversation = (req, res, next) => {
   } = req;
   let errors = {};
 
+  console.log(conversation);
+
   // validates required fields
   if (!username || !conversation) {
     errors.from = "Invalid request.";

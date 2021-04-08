@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
 
   console.log(`User '${payload.username}' is connected with ID '${socket.id}'`);
   // adds user to online list
-  online.push(payload.username);
+  online.push({name: payload.username, id: socket.id});
   // sends a broadcast to notify all users
   io.emit("online", online);
 
@@ -44,6 +44,14 @@ io.on("connection", (socket) => {
       `User '${payload.username}' with ID '${socket.id}' disconnected.`
     );
   });
+
+  socket.on("new chat", (to) => {
+    // notifies user about a new chat
+    socket.to(to).emit("new chat");
+    console.log(
+      `User '${payload.username}' with ID '${socket.id}' started a new conversation with '${to}'.`
+    );
+  });
 });
 
 /**
@@ -52,7 +60,7 @@ io.on("connection", (socket) => {
  * @param {string} username username to be removed from online list
  */
 const logout = (username) => {
-  online.splice(online.indexOf(username), 1);
+    online = online.filter(u => u.username !== username);
 };
 
 module.exports = io;

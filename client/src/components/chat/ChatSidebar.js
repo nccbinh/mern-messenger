@@ -71,8 +71,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(5),
   },
   emptyListSearch: {
-    marginBottom: "-0.3rem"
-  }
+    marginBottom: "-0.3rem",
+  },
 }));
 
 export default function ChatSidebar(
@@ -84,7 +84,8 @@ export default function ChatSidebar(
     searchHandler,
     searchLoading,
     closeSidebarHandler,
-    logoutHandler,
+    clickHandler,
+    logoutHandler
   },
   props
 ) {
@@ -96,8 +97,8 @@ export default function ChatSidebar(
     setSearch(e.target.value);
   };
 
-  const handleConvClick = (id) => {
-    console.log(id);
+  const handleConvClick = (id, name) => {
+    clickHandler(id, name);
   };
 
   const handleSearch = () => {
@@ -148,13 +149,13 @@ export default function ChatSidebar(
       </Box>
       <Box className={classes.chatUsers}>
         {conversations.length > 0 ? (
-          conversations.map((conv) => {
+          conversations.map((conv, ind) => {
             return (
               <ChatUser
                 name={conv.name}
-                key={conv.id}
+                key={ind}
                 clickHandler={() => {
-                  handleConvClick(conv.id);
+                  handleConvClick(conv.id, conv.name);
                 }}
                 online={conv.online}
                 unread={conv.unread}
@@ -164,7 +165,10 @@ export default function ChatSidebar(
             );
           })
         ) : (
-          <Typography className={classes.emptyList}>Search <Search className={classes.emptyListSearch}/> and start chatting...</Typography>
+          <Typography className={classes.emptyList}>
+            Search <Search className={classes.emptyListSearch} /> and start
+            chatting...
+          </Typography>
         )}
       </Box>
     </Box>

@@ -25,10 +25,12 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const classes = useStyles();
   const [showSidebar, setShowSidebar] = React.useState(false);
-  const [currentConversation, setCurrentConversation] = React.useState("");
   const [conversations, setConversations] = React.useState([]);
-  const [messages, setMessages] = React.useState([]);
-  const [to, setTo] = React.useState("");
+  const [conversation, setConversation] = React.useState({
+    name: "",
+    online: false,
+    messages: [],
+  });
   const [users, setUsers] = React.useState([]);
   const [search, setSearch] = React.useState(false);
   const [searching, setSearching] = React.useState(false);
@@ -86,11 +88,18 @@ export default function Dashboard() {
             name: name,
             lastUpdated: c.lastUpdated,
             preview: c.preview ? c.preview.content : "",
-            online: online.indexOf(name) > -1,
+            online: checkOnline(name) != null,
           };
         })
       );
     });
+  };
+
+  const checkOnline = (name) => {
+    for (var i = 0; i < online.length; i++) {
+      if (online[i].name === name) return online[i].id;
+    }
+    return null;
   };
 
   const handleOpenSidebar = () => {
@@ -105,10 +114,21 @@ export default function Dashboard() {
 
   const handleSubmitMessage = (msg) => {
     console.log(msg);
+    console.log(conversation);
     const message = {
-      cid: "",
-      message: "",
+      to: conversation.name,
+      time: new Date(),
+      message: msg,
     };
+    MessageService.startNewConversation(
+      message,
+      checkOnline(conversation.name)
+    ).then((id) => {
+      fetchConversations();
+      const conv = conversation;
+      conv.messages = [message];
+      setConversation(conv);
+    });
   };
 
   const handleSearch = (keyword) => {
@@ -121,17 +141,30 @@ export default function Dashboard() {
     MessageService.search(keyword).then((res) => {
       const results = [];
       res.users.map((u) => {
-        if (u.username !== username)
+        if (u.username !== username) {
+          // TODO: search in existing conversations
           results.push({
-            id: u._id,
             name: u.username,
             lastUpdated: 0,
-            online: online.indexOf(u.username) > -1
+            online: checkOnline(u.username) != null,
           });
+        }
       });
       setUsers(results);
       setSearching(false);
     });
+  };
+
+  const handleListClick = (id, name) => {
+    if (!id) {
+      // clicks on user to start a new chat
+      const conv = {
+        name: name,
+        messages: [],
+        online: checkOnline(name) != null,
+      };
+      setConversation(conv);
+    }
   };
 
   const handleSocketError = (err) => {
@@ -143,17 +176,24 @@ export default function Dashboard() {
 
   const handleOnline = (users) => {
     setOnline(users);
-    console.log(users);
   };
 
   const handleReceiveMessage = (msg) => {
     console.log(msg);
   };
 
-  // connects socket
-  MessageService.connect(handleSocketError, handleOnline, handleReceiveMessage);
+  const handleNewChat = () => {
+    fetchConversations();
+  };
 
   React.useEffect(() => {
+    // connects socket
+    MessageService.connect(
+      handleSocketError,
+      handleOnline,
+      handleReceiveMessage,
+      handleNewChat
+    );
     // fetch conversations
     fetchConversations();
   }, []);
@@ -168,12 +208,13 @@ export default function Dashboard() {
         logoutHandler={handleLogout}
         searchHandler={handleSearch}
         searchLoading={searching}
+        clickHandler={handleListClick}
         closeSidebarHandler={handleOpenSidebar}
       />
       <ChatPane
-        name={to}
-        online={true}
-        messages={messages}
+        name={conversation.name}
+        online={conversation.online}
+        messages={conversation.messages}
         messageHandler={handleSubmitMessage}
         openSidebarHandler={handleOpenSidebar}
       />
