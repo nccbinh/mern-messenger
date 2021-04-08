@@ -5,9 +5,9 @@
  */
 
 /**
- * checks if a user is online
+ * checks if a user is in a list
  */
-exports.checkOnline = function(name, list) {
+exports.checkList = function(name, list) {
   for (var i = 0; i < list.length; i++) {
     if (list[i].name === name) return list[i].id;
   }

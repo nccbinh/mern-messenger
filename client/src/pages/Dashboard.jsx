@@ -71,7 +71,7 @@ export default function Dashboard() {
       let conv = {};
       conv.id = id;
       conv.name = name;
-      conv.online = chatHelper.checkOnline(name, online) != null;
+      conv.online = chatHelper.checkList(name, online) != null;
       conv.messages = messages;
       setConversation(conv);
     });
@@ -97,7 +97,7 @@ export default function Dashboard() {
       };
       MessageService.newMessage(
         message,
-        chatHelper.checkOnline(conversation.name, online)
+        chatHelper.checkList(conversation.name, online)
       ).then((res) => {
         fetchMessages(res.id, conversation.name);
         fetchConversations();
@@ -111,7 +111,7 @@ export default function Dashboard() {
       };
       MessageService.startNewConversation(
         message,
-        chatHelper.checkOnline(conversation.name, online)
+        chatHelper.checkList(conversation.name, online)
       ).then((id) => {
         fetchConversations();
         const conv = conversation;
@@ -145,12 +145,14 @@ export default function Dashboard() {
   };
 
   const handleListClick = (id, name) => {
+    // tries getting conversation if any
+    if (!id) id = chatHelper.checkList(name, conversations);
     if (!id) {
       // clicks on user to start a new chat
       const conv = {
         name: name,
         messages: [],
-        online: chatHelper.checkOnline(name, online) != null,
+        online: chatHelper.checkList(name, online) != null,
       };
       setConversation(conv);
     } else {
@@ -171,7 +173,7 @@ export default function Dashboard() {
   };
 
   const handleReceiveMessage = (id) => {
-    if(id === conversation.id) {
+    if (id === conversation.id) {
       fetchMessages(id, conversation.name);
     }
     fetchConversations();

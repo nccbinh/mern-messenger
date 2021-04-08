@@ -8,6 +8,7 @@ import ChatMessage from "./ChatMessage";
 import { Box, makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
+  // TODO: use flex-direction: column-reverse to keep it scrolled to the bottom
   chatPaneBody: {
     height: "calc(100vh - 13rem)",
     overflowX: "hidden",

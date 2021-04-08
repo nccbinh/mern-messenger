@@ -161,7 +161,7 @@ export default function ChatSidebar(
                   handleConvClick(conv.id, conv.name);
                 }}
                 selected={selected==conv.name}
-                online={chatHelper.checkOnline(conv.name, online)}
+                online={chatHelper.checkList(conv.name, online)}
                 unread={conv.unread}
                 message={conv.preview}
                 avatar={conv.avatar}
