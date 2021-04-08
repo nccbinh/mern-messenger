@@ -22,8 +22,8 @@ export async function connect(errorHandler, onlineHandler, messageHandler, chatH
     onlineHandler(users);
   });
   // handles receive message
-  Socket.on("message", (message) => {
-    messageHandler(message);
+  Socket.on("new message", (id) => {
+    messageHandler(id);
   });
   // handles receive new conversation
   Socket.on("new chat", () => {
@@ -94,5 +94,25 @@ export async function search(keyword) {
     res.json()
   );
   Socket.emit("new chat", socketId);
+  return res;
+}
+
+/**
+ * @name newMessage
+ * @description calls post message api for adding a message
+ * @returns message ID
+ */
+ export async function newMessage(msg, socketId) {
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: msg.message,
+    }),
+  };
+  const res = await fetch(`api/conversation/${msg.id}`, requestOptions).then((res) =>
+    res.json()
+  );
+  Socket.emit("new message", socketId, msg.id);
   return res;
 }

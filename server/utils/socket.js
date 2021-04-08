@@ -53,6 +53,11 @@ io.on("connection", (socket) => {
       `User '${payload.username}' with ID '${socket.id}' started a new conversation with '${to}'.`
     );
   });
+
+  socket.on("new message", (to, id) => {
+    // notifies user about a new message
+    socket.to(to).emit("new message", id);
+  });
 });
 
 /**

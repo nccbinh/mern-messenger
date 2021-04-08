@@ -38,43 +38,6 @@ export default function Dashboard() {
   const [online, setOnline] = React.useState([]);
   const username = localStorage.getItem("user");
   const uid = localStorage.getItem("uid");
-  // const users = [
-  //   {
-  //     id: 0,
-  //     name: "santiago",
-  //     lastUpdate: "",
-  //     preview: "Where are you from?",
-  //     unread: false,
-  //     online: true,
-  //   },
-  //   {
-  //     id: 1,
-  //     name: "chiumbo",
-  //     lastUpdate: "",
-  //     preview: "Sure! What time?",
-  //     unread: true,
-  //     online: false,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "hualing",
-  //     lastUpdate: "",
-  //     preview: "Do you have any plan?",
-  //     unread: false,
-  //     online: false,
-  //   },
-  // ];
-  // const messages = [
-  //   {
-  //     name: "santiago",
-  //     time: new Date(),
-  //     message: "Where are you from?",
-  //   },
-  //   {
-  //     time: new Date(),
-  //     message: "I'm from New York",
-  //   },
-  // ];
 
   const fetchConversations = () => {
     MessageService.getConversations().then((conv) => {
@@ -89,10 +52,28 @@ export default function Dashboard() {
             id: c.id,
             name: name,
             lastUpdated: c.lastUpdated,
-            preview: c.preview ? c.preview.content : ""
+            preview: c.preview ? c.preview.content : "",
           };
         })
       );
+    });
+  };
+
+  const fetchMessages = (id, name) => {
+    MessageService.getConversation(id).then((msgs) => {
+      const messages = msgs.map((m) => {
+        return {
+          name: m.author === uid ? "" : name,
+          time: new Date(m.created),
+          message: m.content,
+        };
+      });
+      let conv = {};
+      conv.id = id;
+      conv.name = name;
+      conv.online = chatHelper.checkOnline(name, online) != null;
+      conv.messages = messages;
+      setConversation(conv);
     });
   };
 
@@ -108,22 +89,36 @@ export default function Dashboard() {
   };
 
   const handleSubmitMessage = (msg) => {
-    console.log(msg);
-    console.log(conversation);
-    const message = {
-      to: conversation.name,
-      time: new Date(),
-      message: msg,
-    };
-    MessageService.startNewConversation(
-      message,
-      chatHelper.checkOnline(conversation.name, online)
-    ).then((id) => {
-      fetchConversations();
-      const conv = conversation;
-      conv.messages = [message];
-      setConversation(conv);
-    });
+    if (conversation.id) {
+      // sends message to an existing conversation
+      const message = {
+        id: conversation.id,
+        message: msg,
+      };
+      MessageService.newMessage(
+        message,
+        chatHelper.checkOnline(conversation.name, online)
+      ).then((res) => {
+        fetchMessages(res.id, conversation.name);
+        fetchConversations();
+      });
+    } else {
+      // starts a new conversation
+      const message = {
+        to: conversation.name,
+        time: new Date(),
+        message: msg,
+      };
+      MessageService.startNewConversation(
+        message,
+        chatHelper.checkOnline(conversation.name, online)
+      ).then((id) => {
+        fetchConversations();
+        const conv = conversation;
+        conv.messages = [message];
+        setConversation(conv);
+      });
+    }
   };
 
   const handleSearch = (keyword) => {
@@ -140,7 +135,7 @@ export default function Dashboard() {
           // TODO: search in existing conversations
           results.push({
             name: u.username,
-            lastUpdated: 0
+            lastUpdated: 0,
           });
         }
       });
@@ -160,20 +155,7 @@ export default function Dashboard() {
       setConversation(conv);
     } else {
       // loads existing chat
-      MessageService.getConversation(id).then((msgs) => {
-        const messages = msgs.map((m) => {
-          return {
-            name: m.author === uid ? "" : name,
-            time: new Date(m.created),
-            message: m.content,
-          };
-        });
-        let conv = {};
-        conv.name = name;
-        conv.online = chatHelper.checkOnline(name, online) != null;
-        conv.messages = messages;
-        setConversation(conv);
-      });
+      fetchMessages(id, name);
     }
   };
 
@@ -188,8 +170,11 @@ export default function Dashboard() {
     setOnline(users);
   };
 
-  const handleReceiveMessage = (msg) => {
-    console.log(msg);
+  const handleReceiveMessage = (id) => {
+    if(id === conversation.id) {
+      fetchMessages(id, conversation.name);
+    }
+    fetchConversations();
   };
 
   const handleNewChat = () => {
