@@ -4,6 +4,7 @@
  * @since 0.1.0
  */
 import Socket from "../socket";
+import resHandler from "../helpers/apiHelper";
 
 /**
  * @name connect
@@ -48,7 +49,7 @@ export async function sendMessage(message) {
  * @returns conversation list
  */
 export async function getConversations() {
-  const res = await fetch(`api/conversation/`).then((res) => res.json());
+  const res = await fetch(`api/conversation/`).then(resHandler);
   return res;
 }
 
@@ -58,8 +59,6 @@ export async function getConversations() {
  * @returns list of matching users
  */
 export async function search(keyword) {
-  const res = await fetch(`api/user/search?keyword=${keyword}`).then((res) =>
-    res.json()
-  );
+  const res = await fetch(`api/user/search?keyword=${keyword}`).then(resHandler);
   return res;
 }

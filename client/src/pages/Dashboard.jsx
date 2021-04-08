@@ -27,6 +27,8 @@ export default function Dashboard() {
   const [showSidebar, setShowSidebar] = React.useState(false);
   const [currentConversation, setCurrentConversation] = React.useState("");
   const [conversations, setConversations] = React.useState([]);
+  const [messages, setMessages] = React.useState([]);
+  const [to, setTo] = React.useState("");
   const [users, setUsers] = React.useState([]);
   const [search, setSearch] = React.useState(false);
   const [searching, setSearching] = React.useState(false);
@@ -57,17 +59,17 @@ export default function Dashboard() {
   //     online: false,
   //   },
   // ];
-  const messages = [
-    {
-      name: "santiago",
-      time: new Date(),
-      message: "Where are you from?",
-    },
-    {
-      time: new Date(),
-      message: "I'm from New York",
-    },
-  ];
+  // const messages = [
+  //   {
+  //     name: "santiago",
+  //     time: new Date(),
+  //     message: "Where are you from?",
+  //   },
+  //   {
+  //     time: new Date(),
+  //     message: "I'm from New York",
+  //   },
+  // ];
 
   const fetchConversations = () => {
     MessageService.getConversations().then((conv) => {
@@ -165,7 +167,7 @@ export default function Dashboard() {
         closeSidebarHandler={handleOpenSidebar}
       />
       <ChatPane
-        name="santiago"
+        name={to}
         online={true}
         messages={messages}
         messageHandler={handleSubmitMessage}
