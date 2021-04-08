@@ -10,6 +10,7 @@ import Avatar1 from "../assets/images/avatar/7.png";
 import Avatar2 from "../assets/images/avatar/2.png";
 import Avatar3 from "../assets/images/avatar/3.png";
 import Avatar4 from "../assets/images/avatar/4.png";
+const chatHelper = require("../helpers/chatHelper");
 const MessageService = require("../services/messageService");
 
 const useStyles = makeStyles((theme) => ({
@@ -88,21 +89,11 @@ export default function Dashboard() {
             id: c.id,
             name: name,
             lastUpdated: c.lastUpdated,
-            preview: c.preview ? c.preview.content : "",
-            online: checkOnline(name) != null,
+            preview: c.preview ? c.preview.content : ""
           };
         })
       );
-      console.log(conversations);
     });
-  };
-
-  const checkOnline = (name, list) => {
-    list = list ? list : online;
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].name === name) return list[i].id;
-    }
-    return null;
   };
 
   const handleOpenSidebar = () => {
@@ -126,7 +117,7 @@ export default function Dashboard() {
     };
     MessageService.startNewConversation(
       message,
-      checkOnline(conversation.name)
+      chatHelper.checkOnline(conversation.name, online)
     ).then((id) => {
       fetchConversations();
       const conv = conversation;
@@ -149,8 +140,7 @@ export default function Dashboard() {
           // TODO: search in existing conversations
           results.push({
             name: u.username,
-            lastUpdated: 0,
-            online: checkOnline(u.username) != null,
+            lastUpdated: 0
           });
         }
       });
@@ -165,7 +155,7 @@ export default function Dashboard() {
       const conv = {
         name: name,
         messages: [],
-        online: checkOnline(name) != null,
+        online: chatHelper.checkOnline(name, online) != null,
       };
       setConversation(conv);
     } else {
@@ -180,7 +170,7 @@ export default function Dashboard() {
         });
         let conv = {};
         conv.name = name;
-        conv.online = checkOnline(name) != null;
+        conv.online = chatHelper.checkOnline(name, online) != null;
         conv.messages = messages;
         setConversation(conv);
       });
@@ -196,11 +186,6 @@ export default function Dashboard() {
 
   const handleOnline = (users) => {
     setOnline(users);
-    // rechecks online status
-    console.log(conversations);
-    let conv = conversations.map((c) => c.online = checkOnline(c.name, users));
-    console.log(conv);
-    setConversations(conv);
   };
 
   const handleReceiveMessage = (msg) => {
@@ -230,6 +215,7 @@ export default function Dashboard() {
         username={username}
         conversations={search ? users : conversations}
         openSidebar={showSidebar}
+        online={online}
         logoutHandler={handleLogout}
         searchHandler={handleSearch}
         searchLoading={searching}
