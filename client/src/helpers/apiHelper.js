@@ -1,5 +1,5 @@
 /**
- * Messaging Service
+ * API Helper
  * @author Binh Nguyen
  * @since 0.1.0
  */

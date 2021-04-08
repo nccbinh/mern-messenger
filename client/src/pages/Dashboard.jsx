@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [users, setUsers] = React.useState([]);
   const [search, setSearch] = React.useState(false);
   const [searching, setSearching] = React.useState(false);
+  const [online, setOnline] = React.useState([]);
   const username = localStorage.getItem("user");
   // const users = [
   //   {
@@ -76,14 +77,16 @@ export default function Dashboard() {
       if (!conv || !conv.map) return;
       setConversations(
         conv.map((c) => {
+          const name =
+            username == c.participants[0].username
+              ? c.participants[1].username
+              : c.participants[0].username;
           return {
             id: c.id,
-            name:
-              username == c.participants[0].username
-                ? c.participants[1].username
-                : c.participants[0].username,
+            name: name,
             lastUpdated: c.lastUpdated,
             preview: c.preview ? c.preview.content : "",
+            online: online.indexOf(name) > -1,
           };
         })
       );
@@ -123,9 +126,9 @@ export default function Dashboard() {
             id: u._id,
             name: u.username,
             lastUpdated: 0,
+            online: online.indexOf(u.username) > -1
           });
       });
-      console.log(results);
       setUsers(results);
       setSearching(false);
     });
@@ -139,6 +142,7 @@ export default function Dashboard() {
   };
 
   const handleOnline = (users) => {
+    setOnline(users);
     console.log(users);
   };
 
