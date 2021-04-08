@@ -114,8 +114,6 @@ exports.newConversation = (req, res, next) => {
   } = req;
   let errors = {};
 
-  console.log(conversation);
-
   // validates required fields
   if (!username || !conversation) {
     errors.from = "Invalid request.";
@@ -136,6 +134,30 @@ exports.newConversation = (req, res, next) => {
     conversation.from === conversation.to
   ) {
     errors.from = "Cannot start a conversation with yourself.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(422).json({
+      errors: errors,
+    });
+  } else {
+    next();
+  }
+};
+
+/**
+ * New Message Validator
+ */
+exports.newMessage = (req, res, next) => {
+  const username = req.user.username;
+  const {
+    body: { message },
+  } = req;
+  let errors = {};
+
+  // validates required fields
+  if (!username || !message) {
+    errors.from = "Invalid request.";
   }
 
   if (Object.keys(errors).length > 0) {

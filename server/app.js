@@ -18,7 +18,7 @@ app.use(express.static(join(__dirname, "public")));
 db.connectDB(process.env.MONGODB_CONNECTION_STR);
 
 // Routes
-app.use(require('./routes'));
+app.use(require("./routes"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
 
   console.log(`User '${payload.username}' is connected with ID '${socket.id}'`);
   // adds user to online list
-  online.push({name: payload.username, id: socket.id});
+  online.push({ name: payload.username, id: socket.id });
   // sends a broadcast to notify all users
   io.emit("online", online);
 
@@ -61,7 +61,7 @@ io.on("connection", (socket) => {
  * @param {string} username username to be removed from online list
  */
 const logout = (username) => {
-    online = online.filter(u => u.username !== username);
+  online = online.filter((u) => u.username !== username);
 };
 
 module.exports = io;
