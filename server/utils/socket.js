@@ -6,34 +6,43 @@
 const io = require("socket.io")();
 const jwt = require("jsonwebtoken");
 const validator = require("../middlewares/validator");
+const cookie = require("cookie");
 
 // tracks online users
-let online = [];
+let online = {};
 
 /**
  * Socket on connection implementation
  */
 io.on("connection", (socket) => {
+  let payload = {};
+
   // gets payload from cookie
-  const cookie = socket.request.headers.cookie;
-  if (!cookie) {
-    socket.emit("error", "Unauthorized");
-    return;
-  }
-  // gets token from cookie
-  const token = cookie.replace(process.env.JWT_PARAM + "=", "");
-  // decodes token
-  const payload = jwt.verify(token, process.env.JWT_SECRET);
-  // checks if token is expired
-  if (!payload || Date.now() > payload.expiration) {
-    logout(payload.username);
-    socket.emit("error", "Unauthorized");
+  try {
+    const cookies = cookie.parse(socket.request.headers.cookie);
+    if (!cookies) {
+      socket.emit("error", "Unauthorized");
+      return;
+    }
+
+    const token = cookies[process.env.JWT_PARAM];
+
+    // decodes token
+    payload = jwt.verify(token, process.env.JWT_SECRET);
+    // checks if token is expired
+    if (!payload || Date.now() > payload.expiration) {
+      logout(payload.username);
+      socket.emit("error", "Unauthorized");
+      return;
+    }
+  } catch (err) {
+    socket.emit("error", "Invalid request.");
     return;
   }
 
   console.log(`User '${payload.username}' is connected with ID '${socket.id}'`);
   // adds user to online list
-  online.push({ name: payload.username, id: socket.id });
+  online[payload.username] = socket.id;
   // sends a broadcast to notify all users
   io.emit("online", online);
 
@@ -66,7 +75,8 @@ io.on("connection", (socket) => {
  * @param {string} username username to be removed from online list
  */
 const logout = (username) => {
-  online = online.filter((u) => u.username !== username);
+  // removes user from online list
+  delete online[username];
 };
 
 module.exports = io;

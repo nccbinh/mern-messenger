@@ -10,7 +10,6 @@ import Avatar1 from "../assets/images/avatar/7.png";
 import Avatar2 from "../assets/images/avatar/2.png";
 import Avatar3 from "../assets/images/avatar/3.png";
 import Avatar4 from "../assets/images/avatar/4.png";
-const chatHelper = require("../helpers/chatHelper");
 const MessageService = require("../services/messageService");
 
 const useStyles = makeStyles((theme) => ({
@@ -35,7 +34,7 @@ export default function Dashboard() {
   const [users, setUsers] = React.useState([]);
   const [search, setSearch] = React.useState(false);
   const [searching, setSearching] = React.useState(false);
-  const [online, setOnline] = React.useState([]);
+  const [online, setOnline] = React.useState({});
   const username = localStorage.getItem("user");
   const uid = localStorage.getItem("uid");
 
@@ -71,7 +70,7 @@ export default function Dashboard() {
       let conv = {};
       conv.id = id;
       conv.name = name;
-      conv.online = chatHelper.checkList(name, online) != null;
+      conv.online = online[name] != null;
       conv.messages = messages;
       setConversation(conv);
     });
@@ -97,7 +96,7 @@ export default function Dashboard() {
       };
       MessageService.newMessage(
         message,
-        chatHelper.checkList(conversation.name, online)
+       online[conversation.name]
       ).then((res) => {
         fetchMessages(res.id, conversation.name);
         fetchConversations();
@@ -111,7 +110,7 @@ export default function Dashboard() {
       };
       MessageService.startNewConversation(
         message,
-        chatHelper.checkList(conversation.name, online)
+        online[conversation.name]
       ).then((id) => {
         fetchConversations();
         const conv = conversation;
@@ -146,13 +145,16 @@ export default function Dashboard() {
 
   const handleListClick = (id, name) => {
     // tries getting conversation if any
-    if (!id) id = chatHelper.checkList(name, conversations);
+    if (!id) {
+      const c = conversations.find(c => c.name === name);
+      if(c) id = c.id;
+    }
     if (!id) {
       // clicks on user to start a new chat
       const conv = {
         name: name,
         messages: [],
-        online: chatHelper.checkList(name, online) != null,
+        online: online[name] != null,
       };
       setConversation(conv);
     } else {

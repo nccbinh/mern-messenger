@@ -16,7 +16,6 @@ import {
 import { Search } from "@material-ui/icons";
 import ChatSidebarHeader from "./ChatSidebarHeader";
 import ChatUser from "./ChatUser";
-const chatHelper = require("../../helpers/chatHelper");
 
 const drawerWidth = 350;
 const useStyles = makeStyles((theme) => ({
@@ -161,7 +160,7 @@ export default function ChatSidebar(
                   handleConvClick(conv.id, conv.name);
                 }}
                 selected={selected==conv.name}
-                online={chatHelper.checkList(conv.name, online)}
+                online={online[conv.name] != null}
                 unread={conv.unread}
                 message={conv.preview}
                 avatar={conv.avatar}

@@ -145,8 +145,6 @@ router.post("/:id", Auth, Validator.newMessage, async (req, res, next) => {
     content: message,
   };
 
-  console.log(id, msg);
-
   return Conversation.findByIdAndUpdate(
     id,
     {
