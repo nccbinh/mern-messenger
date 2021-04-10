@@ -3,10 +3,11 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
+import React, { useContext } from "react";
 import { Typography, Box, IconButton, makeStyles } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
-import OnlineBadge from "./OnlineBadge";
+import ChatContext from "../ChatContext";
+import OnlineBadge from "../OnlineBadge";
 
 const useStyles = makeStyles((theme) => ({
   chatPaneHeader: {
@@ -53,7 +54,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ChatPaneHeader({ name, online, openSidebarHandler }) {
+export default function ChatPaneHeader({ handlers }) {
+  const context = useContext(ChatContext);
   const classes = useStyles();
 
   return (
@@ -62,15 +64,15 @@ export default function ChatPaneHeader({ name, online, openSidebarHandler }) {
         color="inherit"
         aria-label="open drawer"
         edge="start"
-        onClick={openSidebarHandler}
+        onClick={handlers.onOpenSidebar}
         className={classes.menuButton}
       >
         <MenuIcon />
       </IconButton>
       <Typography component="h1" className={classes.chatPaneHeaderUsername}>
-        {name}
+        {context.chat.name}
       </Typography>
-      {online && (
+      {context.online[context.chat.name] && ( // checks if user is online
         <span>
           <OnlineBadge
             className={classes.badge}

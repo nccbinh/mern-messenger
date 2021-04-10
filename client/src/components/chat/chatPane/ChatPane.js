@@ -3,12 +3,13 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
+import React, { useContext } from "react";
 import ChatPaneHeader from "./ChatPaneHeader";
 import ChatInput from "./ChatInput";
 import ChatBody from "./ChatPaneBody";
 import { Box, Typography, makeStyles } from "@material-ui/core";
-import ChatBubble from "../../assets/images/bubble.svg";
+import ChatContext from "../ChatContext";
+import ChatBubble from "../../../assets/images/bubble.svg";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 145,
     display: "flex",
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   heroText: {
     fontSize: 26,
@@ -44,32 +45,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ChatPane({
-  name,
-  avatar,
-  online,
-  messages,
-  messageHandler,
-  openSidebarHandler,
-}) {
+export default function ChatPane({ handlers }) {
+  const context = useContext(ChatContext);
   const classes = useStyles();
-  return name ? (
+  return context.chat.name ? (
     <Box className={classes.root}>
-      <ChatPaneHeader
-        name={name}
-        online={online}
-        openSidebarHandler={openSidebarHandler}
-      />
-      <ChatBody avatar={avatar} messages={messages} name={name} />
-      <ChatInput messageHandler={messageHandler} />
+      <ChatPaneHeader handlers={handlers} />
+      <ChatBody />
+      <ChatInput handlers={handlers} />
     </Box>
   ) : (
     <Box className={classes.root}>
-      <ChatPaneHeader
-        name={name}
-        online={online}
-        openSidebarHandler={openSidebarHandler}
-      />
+      <ChatPaneHeader handlers={handlers} />
       <Box className={classes.overlay}>
         <Box className={classes.gradient}>
           <img src={ChatBubble} alt="" width={67} />

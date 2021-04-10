@@ -10,24 +10,24 @@ import resHandler from "../helpers/apiHelper";
  * @name connect
  * @description intializes socket connection
  */
-export async function connect(errorHandler, onlineHandler, messageHandler, chatHandler) {
+export async function connect(handlers) {
   // Client socket initialization
   Socket.connect();
   // handles connection error
   Socket.on("error", (err) => {
-    errorHandler(err);
+    handlers.onError(err);
   });
   // handles online user list
   Socket.on("online", (users) => {
-    onlineHandler(users);
+    handlers.onOnline(users);
   });
   // handles receive message
-  Socket.on("new message", (id) => {
-    messageHandler(id);
+  Socket.on("new message", (msg) => {
+    handlers.onMessage(msg);
   });
   // handles receive new conversation
-  Socket.on("new chat", () => {
-    chatHandler();
+  Socket.on("new chat", (chat) => {
+    handlers.onChat(chat);
   });
 }
 
@@ -82,7 +82,7 @@ export async function search(keyword) {
  * @description calls start conversation api for starting a new conversation
  * @returns new conversation's ID
  */
- export async function startNewConversation(msg, socketId) {
+ export async function startNewConversation(msg) {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -93,7 +93,6 @@ export async function search(keyword) {
   const res = await fetch(`api/conversation/`, requestOptions).then((res) =>
     res.json()
   );
-  Socket.emit("new chat", socketId);
   return res;
 }
 
@@ -102,7 +101,7 @@ export async function search(keyword) {
  * @description calls post message api for adding a message
  * @returns message ID
  */
- export async function newMessage(msg, socketId) {
+ export async function newMessage(msg) {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -113,6 +112,21 @@ export async function search(keyword) {
   const res = await fetch(`api/conversation/${msg.id}`, requestOptions).then((res) =>
     res.json()
   );
-  Socket.emit("new message", socketId, msg.id);
   return res;
+}
+
+/**
+ * @name newChatSocket
+ * @description emits a new conversation to socket
+ */
+ export async function newChatSocket(msg) {
+  Socket.emit("new chat", msg);
+}
+
+/**
+ * @name newMessage
+ * @description calls post message api for adding a message
+ */
+ export async function newMessageSocket(msg) {
+  Socket.emit("new message", msg);
 }

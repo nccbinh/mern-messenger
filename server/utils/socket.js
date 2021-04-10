@@ -5,7 +5,7 @@
  */
 const io = require("socket.io")();
 const jwt = require("jsonwebtoken");
-const validator = require("../middlewares/validator");
+const chatUtil = require("./chat");
 const cookie = require("cookie");
 
 // tracks online users
@@ -14,7 +14,7 @@ let online = {};
 /**
  * Socket on connection implementation
  */
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   let payload = {};
 
   // gets payload from cookie
@@ -32,6 +32,7 @@ io.on("connection", (socket) => {
     // checks if token is expired
     if (!payload || Date.now() > payload.expiration) {
       logout(payload.username);
+      io.emit("online", online);
       socket.emit("error", "Unauthorized");
       return;
     }
@@ -55,27 +56,68 @@ io.on("connection", (socket) => {
     );
   });
 
-  socket.on("new chat", (to) => {
-    // notifies user about a new chat
-    socket.to(to).emit("new chat");
-    console.log(
-      `User '${payload.username}' with ID '${socket.id}' started a new conversation with '${to}'.`
-    );
+  socket.on("new chat", async (chat) => {
+    try {
+      const conv = {
+        startedBy: payload.id,
+        participants: [payload.id, chat.to.id],
+        messages: [
+          {
+            author: payload.id,
+            content: chat.message,
+          },
+        ],
+      };
+      const saved = await chatUtil.addConversation(conv);
+      const res = {
+        id: saved._id,
+        participants: [{
+          _id: payload.id,
+          username: payload.username
+        },{
+          _id: chat.to.id,
+          username: chat.to.username
+        }],
+        lastUpdated: saved.lastUpdated,
+        // shows only the most recent message for preview
+        preview: saved.messages[conv.messages.length - 1]
+      };
+      // notifies users about a new chat
+      if (chat.sid) socket.to(chat.sid).emit("new chat", res);
+      socket.emit("new chat", res);
+    } catch (err) {
+      console.log(err);
+      socket.emit("error", "Internal server error. Please try again later.");
+    }
   });
 
-  socket.on("new message", (to, id) => {
-    // notifies user about a new message
-    socket.to(to).emit("new message", id);
+  socket.on("new message", (msg) => {
+    try {
+      chatUtil.addMessage(msg.id, {
+        author: payload.id,
+        content: msg.message
+      });
+      // notifies user about a new message
+      const message = {
+        from: payload.username,
+        time: new Date(),
+        message: msg.message,
+      };
+      if (msg.sid) socket.to(msg.sid).emit("new message", message);
+      socket.emit("new message", message);
+    } catch (err) {
+      console.log(err);
+      socket.emit("error", "Internal server error. Please try again later.");
+    }
   });
 });
 
 /**
  * @name logout
- * @description Removed a user from the online list
+ * @description Removes a user from the online list
  * @param {string} username username to be removed from online list
  */
 const logout = (username) => {
-  // removes user from online list
   delete online[username];
 };
 

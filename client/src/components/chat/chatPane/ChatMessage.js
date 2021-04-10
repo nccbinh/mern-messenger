@@ -3,7 +3,7 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
+import React, { useContext } from "react";
 import {
   Avatar,
   Typography,
@@ -11,7 +11,7 @@ import {
   Tooltip,
   makeStyles,
 } from "@material-ui/core";
-import Formatter from "../../helpers/formatter";
+import Formatter from "../../../helpers/formatter";
 
 const useStyles = makeStyles((theme) => ({
   chatMessageRoot: {
@@ -70,25 +70,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ChatMessage({ from, time, message, avatar }) {
+export default function ChatMessage({ params }) {
   const classes = useStyles();
 
-  return from ? (
+  return params.from ? (
     <Box className={classes.chatMessageRoot}>
       <Box
         className={classes.chatMessageDiv + " " + classes.chatMessageFromDiv}
       >
-        <Avatar src={avatar} alt={from} className={classes.avatar} />
+        <Avatar
+          src={params.avatar}
+          alt={params.from}
+          className={classes.avatar}
+        />
         <div>
-          <Tooltip title={time.toLocaleString()}>
+          <Tooltip title={params.time.toLocaleString()}>
             <Typography className={classes.time}>
-              {from} {Formatter.formatTime(time)}
+              {params.from} {Formatter.formatTime(params.time)}
             </Typography>
           </Tooltip>
           <Typography
             className={classes.chatMessage + " " + classes.chatMessageFrom}
           >
-            {message}
+            {params.message}
           </Typography>
         </div>
       </Box>
@@ -96,15 +100,15 @@ export default function ChatMessage({ from, time, message, avatar }) {
   ) : (
     <Box className={classes.chatMessageRoot}>
       <Box className={classes.chatMessageDiv + " " + classes.chatMessageToDiv}>
-        <Tooltip title={time.toLocaleString()}>
+        <Tooltip title={params.time.toLocaleString()}>
           <Typography className={classes.time}>
-            {Formatter.formatTime(time)}
+            {Formatter.formatTime(params.time)}
           </Typography>
         </Tooltip>
         <Typography
           className={classes.chatMessage + " " + classes.chatMessageTo}
         >
-          {message}
+          {params.message}
         </Typography>
       </Box>
     </Box>

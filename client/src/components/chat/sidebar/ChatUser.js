@@ -3,9 +3,10 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
-import { Avatar, Typography, Box, Button, makeStyles } from "@material-ui/core";
-import OnlineBadge from "./OnlineBadge";
+import React, { useContext } from "react";
+import { Avatar, Typography, Box, makeStyles } from "@material-ui/core";
+import ChatContext from "../ChatContext";
+import OnlineBadge from "../OnlineBadge";
 
 const useStyles = makeStyles((theme) => ({
   chatMessageRoot: {
@@ -56,23 +57,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ChatUser({
-  selected,
-  name,
-  message,
-  unread,
-  online,
-  avatar,
-  clickHandler,
-}) {
+export default function ChatUser({ params, onClick, handlers }) {
+  const context = useContext(ChatContext);
   const classes = useStyles();
+
+  const onClickHandler = () => {
+    handlers.onClick(params.id, params.name, params.uid);
+    // calls parent's onclick handler
+    onClick();
+  }
+
   return (
     <Box className={classes.chatMessageRoot}>
       <Box
-        onClick={clickHandler}
-        className={classes.chatUser + " " + (selected ? classes.selected : "")}
+        onClick={onClickHandler}
+        className={classes.chatUser + " " + (params.name === context.chat.name ? classes.selected : "")}
       >
-        {online ? (
+        {context.online[params.name] ? (
           <OnlineBadge
             className={classes.avatarBadge}
             overlap="circle"
@@ -82,19 +83,27 @@ export default function ChatUser({
             }}
             variant="dot"
           >
-            <Avatar src={avatar} alt="" className={classes.avatar} />
+            <Avatar
+              src={params.avatar}
+              alt={params.name}
+              className={classes.avatar}
+            />
           </OnlineBadge>
         ) : (
-          <Avatar src={avatar} alt="" className={classes.avatar} />
+          <Avatar
+            src={params.avatar}
+            alt={params.name}
+            className={classes.avatar}
+          />
         )}
         <div>
-          <Typography className={classes.chatName}>{name}</Typography>
+          <Typography className={classes.chatName}>{params.name}</Typography>
           <Typography
             className={
-              classes.chatPreview + " " + (unread ? classes.chatUnread : "")
+              classes.chatPreview + " " + (params.unread ? classes.chatUnread : "")
             }
           >
-            {message}
+            {params.preview}
           </Typography>
         </div>
       </Box>

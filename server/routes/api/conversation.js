@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const router = require("express").Router();
 const Conversation = mongoose.model("Conversation");
 const User = mongoose.model("User");
+const chatUtil = require("../../utils/chat");
 const Auth = require("../../middlewares/auth");
 const Validator = require("../../middlewares/validator");
 
@@ -110,27 +111,25 @@ router.post("/", Auth, Validator.newConversation, async (req, res, next) => {
       },
     ],
   };
-  const finalConv = new Conversation(conv);
 
-  return finalConv.save().then(
-    (conv) => {
-      res.status(201).json({
-        message: "Conversation created successfully.",
-        id: conv._id,
-      });
-    },
-    (err) => {
-      console.log(err);
-      return res.status(500).json({
-        message: "Internal server error. Please try again later.",
-      });
-    }
-  );
+  // saves conversation
+  try {
+    const saved = await chatUtil.addConversation(conv);
+    return res.status(201).json({
+      message: "Conversation created successfully.",
+      id: saved._id,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: "Internal server error. Please try again later.",
+    });
+  }
 });
 
 /**
- * POST start
- * @description Start a new conversation.
+ * POST chat
+ * @description Adds a message to a conversation.
  */
 router.post("/:id", Auth, Validator.newMessage, async (req, res, next) => {
   const userId = req.user.id;
@@ -145,28 +144,18 @@ router.post("/:id", Auth, Validator.newMessage, async (req, res, next) => {
     content: message,
   };
 
-  return Conversation.findByIdAndUpdate(
-    id,
-    {
-      $push: {
-        messages: msg,
-      }
-    },
-    { upsert: true }
-  ).then(
-    (conv) => {
-      return res.status(201).json({
-        message: "Message created successfully.",
-        id: conv._id,
-      });
-    },
-    (err) => {
-      console.log(err);
-      return res.status(500).json({
-        message: "Internal server error. Please try again later.",
-      });
-    }
-  );
+  try {
+    const saved = await chatUtil.addMessage(id, msg);
+    return res.status(201).json({
+      message: "Message created successfully.",
+      id: saved._id
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: "Internal server error. Please try again later.",
+    });
+  }
 });
 
 module.exports = router;
