@@ -75,7 +75,6 @@ export default function Dashboard() {
         };
         MessageService.newChatSocket(message);
       }
-      console.log(context);
     },
     // handles click on open sidebar button in header
     onOpenSidebar: () => {
@@ -196,7 +195,6 @@ export default function Dashboard() {
         lastUpdated: chat.lastUpdated,
         preview: chat.preview ? chat.preview.content : "",
       };
-      console.log(conv, context);
       // checks if the new chat is the same as the new one in chat pane
       if (!context.chat.id && context.chat.name) {
         // adds the chat to sidebar and reload the chat in chat pane
@@ -231,21 +229,33 @@ export default function Dashboard() {
         time: new Date(msg.time),
         message: msg.message,
       };
-      console.log(message, context);
-      if (msg.id === context.chat.id) {
-        //fetchMessages(id, conversation.name);
-        // TODO: adds new message to current conversation
-      } else {
-      }
-      setContext((prevContext) => ({
-        ...prevContext,
-        chat: {
-          ...prevContext.chat,
-          messages: [...prevContext.chat.messages, message],
-        },
-      }));
-      // updates conversations with the added message
-      // fetchConversations();
+      const chats = [...context.sidebar.chats];
+      const chat = chats.find(c => c.id === msg.id);
+      // if(!chat) return;
+      // chat.preview = msg.message;
+      // if (msg.id === context.chat.id) {
+        // adds new message to the current chat and sidebar
+        setContext((prevContext) => ({
+          ...prevContext,
+          chat: {
+            ...prevContext.chat,
+            messages: [...prevContext.chat.messages, message],
+          },
+          // sidebar: {
+          //   ...prevContext.sidebar,
+          //   chats: chats
+          // }
+        }));
+      // } else {
+      //   // only adds to sidebar
+      //   setContext((prevContext) => ({
+      //     ...prevContext,
+      //     sidebar: {
+      //       ...prevContext.sidebar,
+      //       chats: chats
+      //     }
+      //   }));
+      // }
     },
   };
 

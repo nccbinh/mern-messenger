@@ -99,6 +99,7 @@ io.on("connection", async (socket) => {
       });
       // notifies user about a new message
       const message = {
+        id: msg.id,
         from: payload.username,
         time: new Date(),
         message: msg.message,

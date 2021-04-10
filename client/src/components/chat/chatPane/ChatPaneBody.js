@@ -25,7 +25,6 @@ export default function ChatPaneBody() {
   return (
     <Box className={classes.chatPaneBody}>
       {context.chat.messages.map((msg, ind) => {
-        console.log(msg);
         return <ChatMessage params={msg} key={ind} />;
       })}
     </Box>
