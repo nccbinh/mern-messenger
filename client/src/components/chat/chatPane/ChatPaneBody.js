@@ -9,13 +9,11 @@ import { Box, makeStyles } from "@material-ui/core";
 import ChatContext from "../ChatContext";
 
 const useStyles = makeStyles((theme) => ({
-  // TODO: use flex-direction: column-reverse to keep it scrolled to the bottom
   chatPaneBody: {
     height: "calc(100vh - 13rem)",
     overflowX: "hidden",
     overflowY: "auto",
     padding: "1rem",
-    flexDirection: "column-reverse"
   },
 }));
 

@@ -3,7 +3,8 @@
  * @since 0.1.0
  */
 import React from "react";
-import { CssBaseline, Box, makeStyles } from "@material-ui/core";
+import { CssBaseline, Box, IconButton, makeStyles } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import ChatPane from "../components/chat/chatPane/ChatPane";
 import ChatSidebar from "../components/chat/sidebar/ChatSidebar";
 import ChatContext from "../components/chat/ChatContext";
@@ -25,8 +26,6 @@ export default function Dashboard() {
   const classes = useStyles();
   // dashboard context
   // may limit component reusability
-  // TODO: find a way to improve the ease of updating nested values
-  // either with reducer, flattening the object, or with a library
   const [context, setContext] = React.useState({
     // logged in user
     user: {
@@ -52,6 +51,7 @@ export default function Dashboard() {
     // online user list as an object
     online: {}, // structure: online.<username> = <socket ID>
   });
+  const [message, setMessage] = React.useState(null);
 
   // handlers for chat pane
   const chatPaneHandlers = {
@@ -121,6 +121,7 @@ export default function Dashboard() {
           ...prevContext,
           sidebar: { ...prevContext.sidebar, users: [] },
         }));
+        setMessage("Please enter at least 3 characters to search.");
         return;
       } else {
         // updates chats in context
@@ -132,16 +133,20 @@ export default function Dashboard() {
       // starts searching
       MessageService.search(keyword).then((res) => {
         const results = [];
-        res.users.map((u) => {
-          if (u.username !== context.user.username) {
-            results.push({
-              name: u.username,
-              uid: u._id,
-              lastUpdated: 0,
-              preview: "", // TODO: search in conversations to show preview
-            });
-          }
-        });
+        if(res.users.length < 1) {
+          setMessage("No matches.");
+        } else {
+          res.users.map((u) => {
+            if (u.username !== context.user.username) {
+              results.push({
+                name: u.username,
+                uid: u._id,
+                lastUpdated: 0,
+                preview: "", 
+              });
+            }
+          });
+        }
         setContext((prevContext) => ({
           ...prevContext,
           sidebar: { ...prevContext.sidebar, busy: false, users: results },
@@ -150,6 +155,7 @@ export default function Dashboard() {
     },
     // handles user logout
     onLogout: () => {
+      setMessage("Logging out...");
       localStorage.removeItem("user");
       localStorage.removeItem("uid");
       window.location.href = "/login";
@@ -316,6 +322,11 @@ export default function Dashboard() {
     });
   };
 
+  // handles close snackbar message
+  const onCloseMessage = () => {
+    setMessage(null);
+  }
+
   // initialization
   React.useEffect(() => {
     // connects socket
@@ -337,7 +348,28 @@ export default function Dashboard() {
         <ChatSidebar handlers={sidebarHandlers} />
         <ChatPane handlers={chatPaneHandlers} />
       </ChatContext.Provider>
+      <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          open={message != null}
+          autoHideDuration={6000}
+          onClose={onCloseMessage}
+          message={message}
+          action={
+            <React.Fragment>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={onCloseMessage}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </React.Fragment>
+          }
+        />
     </Box>
   );
-  // TODO: add Snackbar for showing error/message
 }
