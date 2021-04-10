@@ -15,15 +15,21 @@ const useStyles = makeStyles((theme) => ({
     overflowX: "hidden",
     overflowY: "auto",
     padding: "1rem",
+    flexDirection: "column-reverse"
   },
 }));
 
 export default function ChatPaneBody() {
   const context = useContext(ChatContext);
   const classes = useStyles();
+  const chatRef = React.createRef();
+
+  React.useLayoutEffect(() => {
+    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  });
 
   return (
-    <Box className={classes.chatPaneBody}>
+    <Box ref={chatRef} className={classes.chatPaneBody}>
       {context.chat.messages.map((msg, ind) => {
         return <ChatMessage params={msg} key={ind} />;
       })}
