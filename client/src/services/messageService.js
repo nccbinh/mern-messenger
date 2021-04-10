@@ -10,9 +10,18 @@ import resHandler from "../helpers/apiHelper";
  * @name connect
  * @description intializes socket connection
  */
-export async function connect(handlers) {
+export async function connect() {
   // Client socket initialization
   Socket.connect();
+}
+
+export function setHandlers(handlers) {
+  // removes old handlers
+  Socket.off("error");
+  Socket.off("online");
+  Socket.off("new message");
+  Socket.off("new chat");
+
   // handles connection error
   Socket.on("error", (err) => {
     handlers.onError(err);

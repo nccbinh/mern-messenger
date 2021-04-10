@@ -198,16 +198,26 @@ export default function Dashboard() {
       // checks if the new chat is the same as the new one in chat pane
       if (!context.chat.id && context.chat.name) {
         // adds the chat to sidebar and reload the chat in chat pane
+
         setContext((prevContext) => ({
           ...prevContext,
           sidebar: {
             ...prevContext.sidebar,
-            chats: [[conv], ...prevContext.sidebar.chats],
+            chats: [conv, ...prevContext.sidebar.chats],
           },
           chat: {
             id: chat.id,
             name: context.chat.name,
-            messages: [chat.preview],
+            messages: [
+              {
+                from:
+                  chat.preview.author === context.user.id
+                    ? ""
+                    : context.chat.name,
+                time: new Date(chat.preview.created),
+                message: chat.preview.content,
+              },
+            ],
           },
         }));
       } else {
@@ -216,7 +226,7 @@ export default function Dashboard() {
           ...prevContext,
           sidebar: {
             ...prevContext.sidebar,
-            chats: [[conv], ...prevContext.sidebar.chats],
+            chats: [conv, ...prevContext.sidebar.chats],
           },
         }));
       }
@@ -230,10 +240,10 @@ export default function Dashboard() {
         message: msg.message,
       };
       const chats = [...context.sidebar.chats];
-      const chat = chats.find(c => c.id === msg.id);
-      // if(!chat) return;
-      // chat.preview = msg.message;
-      // if (msg.id === context.chat.id) {
+      const chat = chats.find((c) => c.id === msg.id);
+      if (!chat) return;
+      chat.preview = msg.message;
+      if (msg.id === context.chat.id) {
         // adds new message to the current chat and sidebar
         setContext((prevContext) => ({
           ...prevContext,
@@ -241,21 +251,21 @@ export default function Dashboard() {
             ...prevContext.chat,
             messages: [...prevContext.chat.messages, message],
           },
-          // sidebar: {
-          //   ...prevContext.sidebar,
-          //   chats: chats
-          // }
+          sidebar: {
+            ...prevContext.sidebar,
+            chats: chats,
+          },
         }));
-      // } else {
-      //   // only adds to sidebar
-      //   setContext((prevContext) => ({
-      //     ...prevContext,
-      //     sidebar: {
-      //       ...prevContext.sidebar,
-      //       chats: chats
-      //     }
-      //   }));
-      // }
+      } else {
+        // only adds to sidebar
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: {
+            ...prevContext.sidebar,
+            chats: chats,
+          },
+        }));
+      }
     },
   };
 
@@ -309,10 +319,16 @@ export default function Dashboard() {
   // initialization
   React.useEffect(() => {
     // connects socket
-    MessageService.connect(socketHandlers);
+    MessageService.connect();
     // fetch conversations
     fetchConversations();
   }, []);
+
+  // resets handlers
+  React.useEffect(() => {
+    // set handlers
+    MessageService.setHandlers(socketHandlers);
+  }, [context]);
 
   return (
     <Box className={classes.root}>
