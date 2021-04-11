@@ -3,9 +3,9 @@
  * @author Binh Nguyen
  * @since 0.0.1
  */
-const mongoose = require('mongoose');
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const { Schema } = mongoose;
 
@@ -13,10 +13,10 @@ const { Schema } = mongoose;
  * User Schema
  */
 const UserSchema = new Schema({
-    username: { type: String, index: { unique: true } },
-    email: { type: String, index: { unique: true } },
-    hash: String,
-    salt: String
+  username: { type: String, index: { unique: true } },
+  email: { type: String, index: { unique: true } },
+  hash: String,
+  salt: String,
 });
 
 /**
@@ -25,33 +25,40 @@ const UserSchema = new Schema({
  * @param {string} password Password to be set.
  */
 UserSchema.methods.setPassword = function (password) {
-    this.salt = crypto.randomBytes(16).toString('hex');
-    this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
+  this.salt = crypto.randomBytes(16).toString("hex");
+  this.hash = crypto
+    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+    .toString("hex");
 };
 
 /**
  * @name validatePassword
  * @description Validates if an entered password is correct.
  * @param {string} password password to be checked.
- * @returns 
+ * @returns
  */
 UserSchema.methods.validatePassword = function (password) {
-    const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
-    return this.hash === hash;
+  const hash = crypto
+    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
+    .toString("hex");
+  return this.hash === hash;
 };
 
 /**
  * @name generateJWT
  * @description Generates a JWT token from user info.
  * @param {string} secret secret key to be used.
- * @returns 
+ * @returns
  */
 UserSchema.methods.generateJWT = function (secret, expiration) {
-    return jwt.sign({
-        id: this._id,
-        username: this.username,
-        expiration: expiration
-    }, secret);
-}
+  return jwt.sign(
+    {
+      id: this._id,
+      username: this.username,
+      expiration: expiration,
+    },
+    secret
+  );
+};
 
-mongoose.model('User', UserSchema);
+mongoose.model("User", UserSchema);

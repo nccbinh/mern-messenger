@@ -3,8 +3,9 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
+import React, { useContext } from "react";
 import { Button, Box, TextField, makeStyles } from "@material-ui/core";
+import ChatContext from "../ChatContext";
 
 const useStyles = makeStyles((theme) => ({
   send: {
@@ -28,7 +29,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ChatInput({ messageHandler }) {
+export default function ChatInput({ handlers }) {
+  const context = useContext(ChatContext);
   const [message, setMessage] = React.useState("");
   const classes = useStyles();
 
@@ -37,7 +39,7 @@ export default function ChatInput({ messageHandler }) {
   };
 
   const handleSubmit = () => {
-    messageHandler(message);
+    handlers.onSubmit(message);
     setMessage("");
   };
 

@@ -3,13 +3,13 @@
  * @since 0.1.0
  */
 import React from "react";
-import { CssBaseline, Box, makeStyles } from "@material-ui/core";
-import ChatPane from "../components/chat/ChatPane";
-import ChatSidebar from "../components/chat/ChatSidebar";
-import Avatar1 from "../assets/images/avatar/7.png";
-import Avatar2 from "../assets/images/avatar/2.png";
-import Avatar3 from "../assets/images/avatar/3.png";
-import Avatar4 from "../assets/images/avatar/4.png";
+import { CssBaseline, Box, IconButton, makeStyles } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import ChatPane from "../components/chat/chatPane/ChatPane";
+import ChatSidebar from "../components/chat/sidebar/ChatSidebar";
+import ChatContext from "../components/chat/ChatContext";
+import Snackbar from "@material-ui/core/Snackbar";
+const MessageService = require("../services/messageService");
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,82 +23,352 @@ const useStyles = makeStyles((theme) => ({
  */
 export default function Dashboard() {
   const classes = useStyles();
-  const [showSidebar, setShowSidebar] = React.useState(false);
-  const username = localStorage.getItem("user");
-  const users = [
-    {
-      id: 0,
-      name: "santiago",
-      lastUpdate: "",
-      preview: "Where are you from?",
-      unread: false,
-      online: true,
+  // dashboard context
+  // may limit component reusability
+  const [context, setContext] = React.useState({
+    // logged in user
+    user: {
+      id: localStorage.getItem("uid"),
+      username: localStorage.getItem("user"),
+      avatar: null,
     },
-    {
-      id: 1,
-      name: "chiumbo",
-      lastUpdate: "",
-      preview: "Sure! What time?",
-      unread: true,
-      online: false,
+    // sidebar params
+    sidebar: {
+      chats: [], // list of conversations
+      users: [], // list of matching users (when searching)
+      show: false, // show/hide sidebar in compact mode
+      busy: false, // is searching for users/loading
     },
-    {
-      id: 2,
-      name: "hualing",
-      lastUpdate: "",
-      preview: "Do you have any plan?",
-      unread: false,
-      online: false,
+    // chatpane params
+    chat: {
+      id: "", // id of current conversation
+      name: "", // name of the other user in the conversation
+      uid: "", // id of the other user
+      avatar: null, // user avatar
+      messages: [], // messages in conversation
     },
-  ];
-  const messages = [
-    {
-      name: "santiago",
-      time: new Date(),
-      message: "Where are you from?",
-    },
-    {
-      time: new Date(),
-      message: "I'm from New York",
-    },
-  ];
+    // online user list as an object
+    online: {}, // structure: online.<username> = <socket ID>
+  });
+  const [message, setMessage] = React.useState(null);
 
-  const handleOpenSidebar = () => {
-    setShowSidebar(!showSidebar);
+  // handlers for chat pane
+  const chatPaneHandlers = {
+    // handles submit message
+    // msg = message object
+    onSubmit: (msg) => {
+      if (context.chat.id) {
+        // sends message to an existing conversation
+        const message = {
+          sid: context.online[context.chat.name],
+          id: context.chat.id,
+          message: msg,
+        };
+        MessageService.newMessageSocket(message);
+      } else {
+        // starts a new conversation
+        const message = {
+          sid: context.online[context.chat.name],
+          to: { username: context.chat.name, id: context.chat.uid },
+          message: msg,
+        };
+        MessageService.newChatSocket(message);
+      }
+    },
+    // handles click on open sidebar button in header
+    onOpenSidebar: () => {
+      //setShowSidebar(!showSidebar);
+      setContext((prevContext) => ({
+        ...prevContext,
+        sidebar: { ...prevContext.sidebar, show: true },
+      }));
+    },
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    window.location.href = "/login";
+  // handlers for sidebar
+  const sidebarHandlers = {
+    // handles selecting a user/conversation
+    // id = conversation ID, name = user
+    onClick: (id, name, uid) => {
+      // tries getting conversation if any
+      if (!id) {
+        const c = context.sidebar.chats.find((c) => c.name === name);
+        if (c) id = c.id;
+      }
+      if (!id) {
+        // starts a new chat
+        const chat = {
+          name: name,
+          messages: [],
+          uid: uid,
+        };
+        setContext((prevContext) => ({
+          ...prevContext,
+          chat: chat,
+        }));
+      } else {
+        // loads existing chat
+        fetchMessages(id, name);
+      }
+    },
+    // handles user search
+    // keyword = search term
+    onSearch: (keyword) => {
+      if (!keyword || keyword.length < 3) {
+        // updates chats in context
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: { ...prevContext.sidebar, users: [] },
+        }));
+        setMessage("Please enter at least 3 characters to search.");
+        return;
+      } else {
+        // updates chats in context
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: { ...prevContext.sidebar, busy: true },
+        }));
+      }
+      // starts searching
+      MessageService.search(keyword).then((res) => {
+        const results = [];
+        if(res.users.length < 1) {
+          setMessage("No matches.");
+        } else {
+          res.users.map((u) => {
+            if (u.username !== context.user.username) {
+              results.push({
+                name: u.username,
+                uid: u._id,
+                lastUpdated: 0,
+                preview: "", 
+              });
+            }
+          });
+        }
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: { ...prevContext.sidebar, busy: false, users: results },
+        }));
+      });
+    },
+    // handles user logout
+    onLogout: () => {
+      setMessage("Logging out...");
+      localStorage.removeItem("user");
+      localStorage.removeItem("uid");
+      window.location.href = "/login";
+      MessageService.disconnect();
+    },
+    // handles close sidebar
+    onClose: () => {
+      setContext((prevContext) => ({
+        ...prevContext,
+        sidebar: { ...prevContext.sidebar, show: false },
+      }));
+    },
   };
 
-  const handleSubmitMessage = (msg) => {
-    console.log(msg);
+  // socket handlers
+  const socketHandlers = {
+    // handles errors
+    // err = error object
+    onError: (err) => {
+      // signs out if token is expired
+      if (err === "Unauthorized") {
+        sidebarHandlers.onLogout();
+      }
+    },
+    // handles receiving list of online users
+    // users = online user list
+    onOnline: (users) => {
+      setContext((prevContext) => ({
+        ...prevContext,
+        online: users,
+      }));
+    },
+    // handles new conversation received
+    // chat = conversation object
+    onChat: (chat) => {
+      const name = chat.participants.filter(
+        (u) => u.username !== context.user.username
+      )[0];
+      const conv = {
+        id: chat.id,
+        name: name.username,
+        uid: name._id,
+        lastUpdated: chat.lastUpdated,
+        preview: chat.preview ? chat.preview.content : "",
+      };
+      // checks if the new chat is the same as the new one in chat pane
+      if (!context.chat.id && context.chat.name) {
+        // adds the chat to sidebar and reload the chat in chat pane
+
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: {
+            ...prevContext.sidebar,
+            chats: [conv, ...prevContext.sidebar.chats],
+          },
+          chat: {
+            id: chat.id,
+            name: context.chat.name,
+            messages: [
+              {
+                from:
+                  chat.preview.author === context.user.id
+                    ? ""
+                    : context.chat.name,
+                time: new Date(chat.preview.created),
+                message: chat.preview.content,
+              },
+            ],
+          },
+        }));
+      } else {
+        // adds only the new chat to sidebar list
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: {
+            ...prevContext.sidebar,
+            chats: [conv, ...prevContext.sidebar.chats],
+          },
+        }));
+      }
+    },
+    // handles new message received
+    // msg = chat message object
+    onMessage: (msg) => {
+      const message = {
+        from: msg.from === context.user.username ? "" : msg.from,
+        time: new Date(msg.time),
+        message: msg.message,
+      };
+      const chats = [...context.sidebar.chats];
+      const chat = chats.find((c) => c.id === msg.id);
+      if (!chat) return;
+      chat.preview = msg.message;
+      if (msg.id === context.chat.id) {
+        // adds new message to the current chat and sidebar
+        setContext((prevContext) => ({
+          ...prevContext,
+          chat: {
+            ...prevContext.chat,
+            messages: [...prevContext.chat.messages, message],
+          },
+          sidebar: {
+            ...prevContext.sidebar,
+            chats: chats,
+          },
+        }));
+      } else {
+        // only adds to sidebar
+        setContext((prevContext) => ({
+          ...prevContext,
+          sidebar: {
+            ...prevContext.sidebar,
+            chats: chats,
+          },
+        }));
+      }
+    },
   };
 
-  const handleSearch = (keyword) => {
-    console.log(keyword);
+  // fetches all conversations
+  const fetchConversations = () => {
+    MessageService.getConversations().then((conv) => {
+      if (!conv || !conv.map) return;
+      const chats = conv.map((c) => {
+        const name = c.participants.filter(
+          (u) => u.username !== context.user.username
+        )[0];
+        return {
+          id: c.id,
+          name: name.username,
+          uid: name._id,
+          lastUpdated: c.lastUpdated,
+          preview: c.preview ? c.preview.content : "",
+        };
+      });
+      // updates chats in context
+      setContext((prevContext) => ({
+        ...prevContext,
+        sidebar: { ...prevContext.sidebar, chats: chats },
+      }));
+    });
   };
+
+  // fetches all messages of a conversation
+  const fetchMessages = (id, name) => {
+    MessageService.getConversation(id).then((msgs) => {
+      const messages = msgs.map((m) => {
+        return {
+          from: m.author === context.user.id ? "" : name,
+          time: new Date(m.created),
+          message: m.content,
+        };
+      });
+      const chat = {
+        id: id,
+        name: name,
+        messages: messages,
+      };
+      // updates the conversation in context
+      setContext((prevContext) => ({
+        ...prevContext,
+        chat: chat,
+      }));
+    });
+  };
+
+  // handles close snackbar message
+  const onCloseMessage = () => {
+    setMessage(null);
+  }
+
+  // initialization
+  React.useEffect(() => {
+    // connects socket
+    MessageService.connect();
+    // fetch conversations
+    fetchConversations();
+  }, []);
+
+  // resets handlers
+  React.useEffect(() => {
+    // set handlers
+    MessageService.setHandlers(socketHandlers);
+  }, [context]);
 
   return (
     <Box className={classes.root}>
       <CssBaseline />
-      <ChatSidebar
-        username={username}
-        avatar={Avatar1}
-        conversations={users}
-        openSidebar={showSidebar}
-        logoutHandler={handleLogout}
-        searchHandler={handleSearch}
-        closeSidebarHandler={handleOpenSidebar}
-      />
-      <ChatPane
-        name="santiago"
-        online={true}
-        messages={messages}
-        messageHandler={handleSubmitMessage}
-        openSidebarHandler={handleOpenSidebar}
-      />
+      <ChatContext.Provider value={context}>
+        <ChatSidebar handlers={sidebarHandlers} />
+        <ChatPane handlers={chatPaneHandlers} />
+      </ChatContext.Provider>
+      <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          open={message != null}
+          autoHideDuration={6000}
+          onClose={onCloseMessage}
+          message={message}
+          action={
+            <React.Fragment>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={onCloseMessage}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </React.Fragment>
+          }
+        />
     </Box>
   );
 }

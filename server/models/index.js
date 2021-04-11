@@ -5,5 +5,5 @@
  */
 
 // declares models in folder
-require('./user');
-require('./conversation');
+require("./user");
+require("./conversation");

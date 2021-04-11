@@ -3,7 +3,7 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
+import React, { useContext } from "react";
 import {
   Avatar,
   Typography,
@@ -16,7 +16,8 @@ import {
 } from "@material-ui/core";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import OnlineBadge from "./OnlineBadge";
+import ChatContext from "../ChatContext";
+import OnlineBadge from "../OnlineBadge";
 
 const useStyles = makeStyles((theme) => ({
   chatSidebarHeader: {
@@ -53,7 +54,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ChatSidebarHeader({ name, avatar, logoutHandler }) {
+export default function ChatSidebarHeader({ handlers }) {
+  const context = useContext(ChatContext);
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -76,10 +78,10 @@ export default function ChatSidebarHeader({ name, avatar, logoutHandler }) {
         }}
         variant="dot"
       >
-        <Avatar src={avatar} alt="" className={classes.avatar} />
+        <Avatar src={context.user.avatar} alt="" className={classes.avatar} />
       </OnlineBadge>
       <Typography component="p" className={classes.chatUsername}>
-        {name}
+        {context.user.username}
       </Typography>
       <Tooltip title="User menu" aria-label="User menu">
         <IconButton
@@ -105,7 +107,7 @@ export default function ChatSidebarHeader({ name, avatar, logoutHandler }) {
           horizontal: "left",
         }}
       >
-        <MenuItem onClick={logoutHandler}>
+        <MenuItem onClick={handlers.onLogout}>
           <ExitToAppIcon className={classes.logoutIcon} /> Logout
         </MenuItem>
       </Menu>

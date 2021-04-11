@@ -3,9 +3,18 @@
  * @author Binh Nguyen
  * @since 0.1.0
  */
-import React from "react";
-import { TextField, Hidden, Box, makeStyles, Drawer } from "@material-ui/core";
+import React, { useContext } from "react";
+import {
+  TextField,
+  Hidden,
+  Box,
+  makeStyles,
+  Drawer,
+  CircularProgress,
+  Typography,
+} from "@material-ui/core";
 import { Search } from "@material-ui/icons";
+import ChatContext from "../ChatContext";
 import ChatSidebarHeader from "./ChatSidebarHeader";
 import ChatUser from "./ChatUser";
 
@@ -50,24 +59,26 @@ const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     [theme.breakpoints.down("sm")]: {
       maxWidth: "80%",
-      flexShrink: 0
+      flexShrink: 0,
     },
+  },
+  loading: {
+    marginTop: "-0.7rem",
+  },
+  emptyList: {
+    fontWeight: "600",
+    color: "#99A9C4",
+    textAlign: "center",
+    marginTop: theme.spacing(5),
+  },
+  emptyListSearch: {
+    marginBottom: "-0.3rem",
   },
 }));
 
-export default function ChatSidebar(
-  {
-    username,
-    avatar,
-    conversations,
-    openSidebar,
-    searchHandler,
-    closeSidebarHandler,
-    logoutHandler,
-  },
-  props
-) {
+export default function ChatSidebar({ handlers }, props) {
   const { window } = props;
+  const context = useContext(ChatContext);
   const [search, setSearch] = React.useState("");
   const classes = useStyles();
 
@@ -75,23 +86,25 @@ export default function ChatSidebar(
     setSearch(e.target.value);
   };
 
-  const handleConvClick = (id) => {
-    console.log(id);
+  const clearSearch = () => {
+    // clears search field when user clicks on a user
+    setSearch("");
   };
 
   const handleSearch = () => {
-    if (!search) return;
-    searchHandler(search);
+    handlers.onSearch(search);
   };
 
+  // decides whether to show list of chats or list of found users
+  const list = search
+    ? context.sidebar.users
+    : context.sidebar.chats;
+
+  // drawer definition
   const drawer = (
     <Box className={classes.chatSidebar}>
       <Box>
-        <ChatSidebarHeader
-          name={username}
-          avatar={avatar}
-          logoutHandler={logoutHandler}
-        />
+        <ChatSidebarHeader handlers={handlers} />
       </Box>
       <Box fontWeight={600} fontSize="h5.fontSize">
         Chats
@@ -105,6 +118,13 @@ export default function ChatSidebar(
             disableUnderline: true,
             classes: { input: classes.inputSearch },
             startAdornment: <Search className={classes.chatSearch} />,
+            endAdornment: context.sidebar.busy ? (
+              <CircularProgress
+                className={classes.loading}
+                color="inherit"
+                size={20}
+              />
+            ) : null,
           }}
           onKeyPress={(ev) => {
             if (ev.key === "Enter") {
@@ -116,24 +136,20 @@ export default function ChatSidebar(
           placeholder="Search"
           value={search}
           onChange={handleChange}
+          disabled={context.sidebar.busy}
         />
       </Box>
       <Box className={classes.chatUsers}>
-        {conversations.map((conv) => {
-          return (
-            <ChatUser
-              name={conv.name}
-              key={conv.id}
-              clickHandler={() => {
-                handleConvClick(conv.id);
-              }}
-              online={conv.online}
-              unread={conv.unread}
-              message={conv.preview}
-              avatar={conv.avatar}
-            />
-          );
-        })}
+        {list.length > 0 ? (
+          list.map((item, ind) => {
+            return <ChatUser key={ind} params={item} onClick={clearSearch} handlers={handlers} />;
+          })
+        ) : (
+          <Typography className={classes.emptyList}>
+            Search <Search className={classes.emptyListSearch} /> and start
+            chatting...
+          </Typography>
+        )}
       </Box>
     </Box>
   );
@@ -142,14 +158,16 @@ export default function ChatSidebar(
     window !== undefined ? () => window().document.body : undefined;
 
   return (
+    // shows a responsive sidebar with either a temporary or a permanent drawer
+    // depending on screen size
     <nav className={classes.drawer}>
       <Hidden mdUp>
         <Drawer
           container={container}
           variant="temporary"
           anchor={"left"}
-          open={openSidebar}
-          onClose={closeSidebarHandler}
+          open={context.sidebar.show}
+          onClose={handlers.onClose}
           classes={{
             paper: classes.drawerPaper,
           }}
@@ -166,7 +184,7 @@ export default function ChatSidebar(
             paper: classes.drawerPaper,
           }}
           variant="permanent"
-          open
+          open={true}
         >
           {drawer}
         </Drawer>
