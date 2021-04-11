@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ChatPaneBody() {
   const context = useContext(ChatContext);
   const classes = useStyles();
-  const chatRef = React.createRef();
+  const chatRef = React.useRef();
 
   React.useLayoutEffect(() => {
     chatRef.current.scrollTop = chatRef.current.scrollHeight;

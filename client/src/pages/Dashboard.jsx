@@ -9,7 +9,6 @@ import ChatPane from "../components/chat/chatPane/ChatPane";
 import ChatSidebar from "../components/chat/sidebar/ChatSidebar";
 import ChatContext from "../components/chat/ChatContext";
 import Snackbar from "@material-ui/core/Snackbar";
-import { CollectionsOutlined } from "@material-ui/icons";
 const MessageService = require("../services/messageService");
 
 const useStyles = makeStyles((theme) => ({
